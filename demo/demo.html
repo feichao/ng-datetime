@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html ng-app="MyApp">
+
+<head>
+  <title>ngDatetime</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="http://7xlphe.com1.z0.glb.clouddn.com/angular-material.min-1.1.1.css">
+  <link rel="stylesheet" type="text/css" href="../src/ng-datetime.css">
+</head>
+
+<body style="margin: 20px;">
+  <div ng-controller="MyController">
+    <div class="ng-datetime" ng-if="false">
+      <div layout="row">
+        <ul layout="column" class="quick-select">
+          <li flex="50" ng-repeat="i in [1,2,3,4,5,6,7,8,9,10]">
+            <md-button>最近1天</md-button>
+          </li>
+        </ul>
+        <table class="date-picker" ng-repeat="i in [0, 1]">
+          <tbody>
+            <tr class="picker-header">
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>
+                </md-button>
+              </td>
+              <td colspan="2">
+                <input name="year-filed" type="text" value="2017">
+              </td>
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>
+                </md-button>
+              </td>
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>
+                </md-button>
+              </td>
+              <td>
+                <input name="month-filed" type="text" value="09">
+              </td>
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>
+                </md-button>
+              </td>
+            </tr>
+            <tr ng-repeat="j in [0, 1, 2, 3, 4, 5]">
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 1 }}</md-button>
+              </td>
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 2 }}</md-button>
+              </td>
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 3 }}</md-button>
+              </td>
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 4 }}</md-button>
+              </td>
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 5 }}</md-button>
+              </td>
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 6 }}</md-button>
+              </td>
+              <td>
+                <md-button class="md-icon-button md-mini normal-day">{{ j * 7 + 7 }}</md-button>
+              </td>
+            </tr>
+            <tr class="time-picker">
+              <td></td>
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>
+                </md-button>
+              </td>
+              <td>
+                <input name="hour-filed" type="text" value="22">
+              </td>
+              <td class="split-time">
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>
+                </md-button>
+              </td>
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>
+                </md-button>
+              </td>
+              <td>
+                <input name="minute-filed" type="text" value="09">
+              </td>
+              <td>
+                <md-button class="md-primary md-icon-button md-mini">
+                  <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>
+                </md-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div layout="row" class="actions">
+        <md-button class="md-raised">今天</md-button>
+        <span flex></span>
+        <md-button class="md-warn">取消</md-button>
+        <span flex="5"></span>
+        <md-button class="md-primary md-raised">确定</md-button>
+      </div>
+    </div>
+    <ng-datetime dt-type="datetime"></ng-datetime>
+  </div>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-animate.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-aria.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-messages.min-1.5.8.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-material.min-1.1.1.js"></script>
+  <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-material-icons.min.js"></script>
+
+  <script type="text/javascript" src="../src/ng-datetime.js"></script>
+  <script type="text/javascript" src="demo.js"></script>
+</body>
+
+</html>

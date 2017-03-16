@@ -1,0 +1,10 @@
+{
+  "name": "ng-datetime",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": "",
+  "ignore": [],
+  "dependencies": {
+    "moment": "^2.17.1"
+  }
+}
