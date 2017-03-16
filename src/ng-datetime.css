@@ -48,6 +48,11 @@
   background: #ddd;
 }
 
+.week-header td {
+  padding: 5px 0;
+  text-align: center;
+}
+
 .time-picker ng-md-icon,
 .picker-header ng-md-icon {
   display: inline-block;

@@ -1,6 +1,8 @@
 (function () {
   'use strict';
 
+  var moment = moment || window.moment;
+
   var TEMPLATE_QUICK_SELECT = [
     '<ul class="quick-select">',
     '  <li ng-repeat="qs in qSelectors">',
@@ -10,66 +12,75 @@
   ].join('');
 
   var TEMPLATE_DATE = [
-    '<table class="date-picker">',
+    '<table class="date-picker" ng-repeat="picker in pickers">',
     '  <tbody>',
-    '    <tr class="picker-header" ng-if="isShowDatePicker">',
+    '    <tr class="picker-header" ng-if="picker.isShowDatePicker">',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusYear()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusYear(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '      <td colspan="2">',
-    '        <input name="year-filed" type="text" ng-model="yearNum">',
+    '        <input name="year-filed" type="text" ng-model="picker.yearNum">',
     '      </td>',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addYear()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addYear(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusMonth()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusMonth(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="month-filed" type="text" value="monthNum">',
+    '        <input name="month-filed" type="text" ng-model="picker.monthNum">',
     '      </td>',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMonth()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMonth(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '    </tr>',
-    '    <tr ng-repeat="row in days" ng-if="isShowDatePicker">',
-    '      <td ng-repeat="day in row">',
+    '    <tr class="week-header"  ng-if="picker.isShowDatePicker">',
+    '      <td>日</td>',
+    '      <td>一</td>',
+    '      <td>二</td>',
+    '      <td>三</td>',
+    '      <td>四</td>',
+    '      <td>五</td>',
+    '      <td>六</td>',
+    '    </tr>',
+    '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
+    '      <td ng-repeat="day in row track by $index">',
     '        <md-button class="md-icon-button md-mini normal-day" ng-click="setDate(day)">{{ day }}</md-button>',
     '      </td>',
     '    </tr>',
-    '    <tr class="time-picker" ng-if="isShowTimePicker">',
+    '    <tr class="time-picker" ng-if="picker.isShowTimePicker">',
     '      <td></td>',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusHour()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusHour(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="hour-filed" type="text" value="hourNum">',
+    '        <input name="hour-filed" type="text" ng-model="picker.hourNum">',
     '      </td>',
     '      <td class="split-time">',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addHour()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addHour(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusMinute()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusMinute(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_left"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="minute-filed" type="text" value="minuteNum">',
+    '        <input name="minute-filed" type="text" ng-model="picker.minuteNum">',
     '      </td>',
     '      <td>',
-    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMinute()">',
+    '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMinute(picker)">',
     '          <ng-md-icon size="24" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
@@ -88,108 +99,9 @@
     '</div>'
   ].join('');
 
-  var getDtTemplate = function(obj) {
-    return [
-      '<ng-date-picker is-date-picker="' + obj.isDatePicker + '" is-time-picker="' + obj.isTimePicker + '" ',
-      '   format="format" min="minDateTime" max="maxDateTime" datetime="' + obj.dateTime + '">',
-      '</ng-date-picker>'
-    ].join('');
-  };
-
-  var DT_TEMPLATE = {
-    date: function () {
-      return getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'false',
-        dateTime: 'dateTime'
-      });
-    },
-    time: function () {
-      return getDtTemplate({
-        isDatePicker: 'false',
-        isTimePicker: 'true',
-        dateTime: 'dateTime'
-      });
-    },
-    datetime: function () {
-      return getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'true',
-        dateTime: 'dateTime'
-      });
-    },
-    'date-range': function () {
-      return getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'false',
-        dateTime: 'startDateTime'
-      }) + getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'false',
-        dateTime: 'endDateTime'
-      });
-    },
-    'time-range': function () {
-      return getDtTemplate({
-        isDatePicker: 'false',
-        isTimePicker: 'true',
-        dateTime: 'startDateTime'
-      }) + getDtTemplate({
-        isDatePicker: 'false',
-        isTimePicker: 'true',
-        dateTime: 'endDateTime'
-      });
-    },
-    'datetime-range': function () {
-      return getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'true',
-        dateTime: 'startDateTime'
-      }) + getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'true',
-        dateTime: 'endDateTime'
-      });
-    },
-    'date-timerange': function () {
-      return getDtTemplate({
-        isDatePicker: 'true',
-        isTimePicker: 'true',
-        dateTime: 'startDateTime'
-      }) + getDtTemplate({
-        isDatePicker: 'false',
-        isTimePicker: 'true',
-        dateTime: 'endDateTime'
-      });
-    }
-  };
-
   angular
     .module('ngDatetime', [])
-    .directive('ngDatePicker', ['$compile', ngDatePickerDirective])
     .directive('ngDatetime', ['$compile', ngDatetimeDirective]);
-
-  function ngDatePickerDirective() {
-    return {
-      restrict: 'E',
-      scope: {
-        isDatePicker: '@',
-        isTimePicker: '@',
-        format: '@',
-        max: '=',
-        min: '=',
-        datetime: '='
-      },
-      template: function (element) {
-      },
-      compile: ngDatePickerCompile
-    };
-  }
-
-  function ngDatePickerCompile(tElement, tAttr) {
-    return function ($scope, element, attr) {
-    };
-  }
 
   /**
    * dtType: date, time, datetime, date-range, time-range, datetime-range, date-timerange
@@ -210,31 +122,68 @@
         maxDateTime: '&',
         minDateTime: '&'
       },
-      template: function (element, attr) {
-        var wraper = '<div class="ng-datetime"></div>';
-        var pickerWraper = '<div layout="row"></div>';
-        var actions = TEMPLATE_ACTIONS;
-
-        var tplFun = DT_TEMPLATE(attr.dtType);
-        var pickerTpl = '';
-        if(typeof tplFun === 'function') {
-          tplFun({
-            format: 'format',
-            startDateTime: 'startDateTime',
-            endDateTime: 'endDateTime',
-            dateTime: 'dateTime',
-            maxDateTime: 'maxDateTime',
-            minDateTime: 'minDateTime'
-          });
-        }
-      },
+      template: [
+        '<div class="ng-datetime">',
+        '  <div layout="row">',
+        TEMPLATE_QUICK_SELECT,
+        TEMPLATE_DATE,
+        '  </div>',
+        TEMPLATE_ACTIONS,
+        '</div>'
+      ].join(''),
       compile: ngDatetimeCompile
     };
   }
 
   function ngDatetimeCompile(tElement, tAttr) {
     return function ($scope, element, attr) {
+      if(typeof moment !== 'function') {
+        console.log('cant find momentjs lib');
+        return;
+      }
 
+      console.log($scope.dateTime);
+
+      switch(attr.dtType) {
+
+        case 'date':
+          $scope.pickers = [{
+            isShowDatePicker: true,
+            isShowTimePicker: false,
+            yearNum: '2017',
+            monthNum: '08',
+            hourNum: '23',
+            minuteNum: '34',
+            days: calcDays($scope.dateTime)
+          }];
+          break;
+        case 'datetime':
+          $scope.pickers = [{
+            isShowDatePicker: true,
+            isShowTimePicker: true,
+            yearNum: '2017',
+            monthNum: '08',
+            hourNum: '23',
+            minuteNum: '34',
+            days: [
+            ['', '' , '' , '', '', '', 1],
+            [2, 3, 4, 5, 6, 7, 8],
+            [9, 10, 11, 12, 13, 14, 15],
+            [16, 17, 18, 19, 20, 21, 22],
+            [23, 24, 25, 26, 27, 28, 29],
+            [30, 31, '', '', '', '' , ''],
+            ]
+          }];
+          break;
+      }
     };
+  }
+
+  function calcDays(datetimeStr) {
+    var datetimeMoment = moment(datetimeStr);
+    console.log(datetimeMoment);
+
+
+    return [];
   }
 })();
