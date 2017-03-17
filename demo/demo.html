@@ -6,6 +6,12 @@
   <meta charset="utf-8">
   <link rel="stylesheet" type="text/css" href="http://7xlphe.com1.z0.glb.clouddn.com/angular-material.min-1.1.1.css">
   <link rel="stylesheet" type="text/css" href="../src/ng-datetime.css">
+  <style>
+    .wrapper {
+      overflow: hidden;
+      padding: 10px;
+    }
+  </style>
 </head>
 
 <body style="margin: 20px;">
@@ -110,8 +116,30 @@
         <md-button class="md-primary md-raised">确定</md-button>
       </div>
     </div>
-    <!-- <ng-datetime dt-type="date" datetime="datetime"></ng-datetime> -->
-    <ng-datetime dt-type="datetime" datetime="datetime"></ng-datetime>
+    <div class="wrapper">
+      <h3>Date</h3>
+      <ng-datetime dt-type="date" choice="datetime"></ng-datetime>
+    </div>
+    <div class="wrapper">
+      <h3>Datetime</h3>
+      <ng-datetime dt-type="datetime" choice="datetime"></ng-datetime>
+    </div>
+    <div class="wrapper">
+      <h3>Date-Range</h3>
+      <ng-datetime dt-type="date-range" start-choice="datetime" end-choice="datetime"></ng-datetime>
+    </div>
+    <div class="wrapper">
+      <h3>Time-Range</h3>
+      <ng-datetime dt-type="time-range" start-choice="datetime" end-choice="datetime"></ng-datetime>
+    </div>
+    <div class="wrapper">
+      <h3>Datetime-Range</h3>
+      <ng-datetime dt-type="datetime-range" start-choice="datetime" end-choice="datetime"></ng-datetime>
+    </div>
+    <div class="wrapper">
+      <h3>Date-TimeRange</h3>
+      <ng-datetime dt-type="date-timerange" start-choice="datetime" end-choice="datetime"></ng-datetime>
+    </div>
   </div>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular-animate.min-1.5.8.js"></script>
