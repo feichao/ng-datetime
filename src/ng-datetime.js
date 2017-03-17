@@ -52,8 +52,10 @@
     '      <td>六</td>',
     '    </tr>',
     '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
-    '      <td ng-repeat="day in row track by $index">',
-    '        <md-button class="md-icon-button md-mini normal-day" ng-click="setDate(day)">{{ day }}</md-button>',
+    '      <td ng-repeat="dayInfo in row track by $index">',
+    '        <md-button class="md-icon-button md-mini" ng-click="setDate(dayInfo)" ng-class="getDayClass(dayInfo)">',
+    '          {{ dayInfo.day }}',
+    '        </md-button>',
     '      </td>',
     '    </tr>',
     '    <tr class="time-picker" ng-if="picker.isShowTimePicker">',
@@ -145,19 +147,18 @@
       console.log($scope.dateTime);
 
       switch(attr.dtType) {
-
         case 'date':
+          $scope.format = $scope.format || 'YYYY-MM-DD';
           $scope.pickers = [{
             isShowDatePicker: true,
             isShowTimePicker: false,
             yearNum: '2017',
             monthNum: '08',
-            hourNum: '23',
-            minuteNum: '34',
             days: calcDays($scope.dateTime)
           }];
           break;
         case 'datetime':
+          $scope.format = $scope.format || 'YYYY-MM-DD HH:mm:ss';
           $scope.pickers = [{
             isShowDatePicker: true,
             isShowTimePicker: true,
@@ -176,14 +177,89 @@
           }];
           break;
       }
+
+      $scope.getDayClass = function(dayInfo) {
+        return {
+          'normal-day': !dayInfo.isToday && !dayInfo.isWeekEnd,
+          'md-warn': dayInfo.isWeekEnd,
+          'md-primary': dayInfo.isToday,
+          'md-primary md-raised': dayInfo.isEqual,
+          'not-in-month': !dayInfo.isInMonth
+        };
+      };
     };
   }
 
   function calcDays(datetimeStr) {
+    var dateFormat = 'YYYY-MM-DD';
     var datetimeMoment = moment(datetimeStr);
-    console.log(datetimeMoment);
 
+    var days = new Array(42);
+    var dayLength = datetimeMoment.daysInMonth();
+    var firstDay = moment(datetimeStr).endOf('month').subtractMonths(1).endOf('month').addDays(1);
+    var firstDayWeekDay = firstDay.weekday();
 
-    return [];
+    for(var i = 0; i < dayLength; i++) {
+      var index = i + firstDayWeekDay;
+      days[index] = setDay(datetimeMoment, firstDay, index, i, true);
+    }
+
+    for(var j = 1; j <= firstDayWeekDay; j++) {
+      var index = firstDayWeekDay - j;
+      days[index] = setDay(datetimeMoment, firstDay, index, -j, false);
+    }
+
+    for(var k = dayLength; k < 42; k++) {
+      var index = firstDayWeekDay + k;
+      days[index] = setDay(datetimeMoment, firstDay, index, k, false);
+    }
+
+    var result = [];
+    for(var l = 0; l < 6; l++) {
+      result.push(days.slice(l * 7, (l + 1) * 7));
+    }
+
+    console.log(result);
+
+    return result;
+  }
+
+  function setDay(currentDay, firstDay, dayIndex, dateIndex, isInMonth) {
+    var dateFormat = 'YYYY-MM-DD';
+    var datetime = moment(firstDay).addDays(dateIndex);
+    var weekday = dayIndex % 7;
+
+    return {
+      datetime: datetime,
+      day: datetime.format('DD'),
+      isInMonth: isInMonth,
+      isWeekEnd: weekday === 0 || weekday === 6,
+      isToday: moment().format(dateFormat) === datetime.format(dateFormat),
+      isEqual: currentDay.format(dateFormat) === datetime.format(dateFormat)
+    };
+  }
+
+  if(!moment.addDays) {
+    moment.prototype.addDays = function(num) {
+      return this.add(num, 'days');
+    };
+  }
+
+  if(!moment.addMonths) {
+    moment.prototype.addMonths = function(num) {
+      return this.add(num, 'months');
+    };
+  }
+
+  if(!moment.subtractDays) {
+    moment.prototype.subtractDays = function(num) {
+      return this.subtract(num, 'days');
+    };
+  }
+
+  if(!moment.subtractMonths) {
+    moment.prototype.subtractMonths = function(num) {
+      return this.subtract(num, 'months');
+    };
   }
 })();

@@ -48,6 +48,10 @@
   background: #ddd;
 }
 
+.date-picker .md-button.not-in-month {
+  opacity: 0.22;
+}
+
 .week-header td {
   padding: 5px 0;
   text-align: center;
