@@ -1,7 +1,71 @@
-(function () {
+(function() {
   'use strict';
 
   var moment = moment || window.moment;
+  var DATE_CALC_FORMAT = 'YYYY-MM-DD';
+  var TIME_CALC_FORMAT = 'HH:mm:ss';
+
+  if (moment && moment.prototype) {
+    if (!moment.addMinutes) {
+      moment.prototype.addMinutes = function(num) {
+        return this.add(num, 'minutes');
+      };
+    }
+
+    if (!moment.addHours) {
+      moment.prototype.addHours = function(num) {
+        return this.add(num, 'hours');
+      };
+    }
+
+    if (!moment.addDays) {
+      moment.prototype.addDays = function(num) {
+        return this.add(num, 'days');
+      };
+    }
+
+    if (!moment.addMonths) {
+      moment.prototype.addMonths = function(num) {
+        return this.add(num, 'months');
+      };
+    }
+
+    if (!moment.addYears) {
+      moment.prototype.addYears = function(num) {
+        return this.add(num, 'years');
+      };
+    }
+
+    if (!moment.subtractMinutes) {
+      moment.prototype.subtractMinutes = function(num) {
+        return this.subtract(num, 'minutes');
+      };
+    }
+
+    if (!moment.subtractHours) {
+      moment.prototype.subtractHours = function(num) {
+        return this.subtract(num, 'hours');
+      };
+    }
+
+    if (!moment.subtractDays) {
+      moment.prototype.subtractDays = function(num) {
+        return this.subtract(num, 'days');
+      };
+    }
+
+    if (!moment.subtractMonths) {
+      moment.prototype.subtractMonths = function(num) {
+        return this.subtract(num, 'months');
+      };
+    }
+
+    if (!moment.subtractYears) {
+      moment.prototype.subtractYears = function(num) {
+        return this.subtract(num, 'years');
+      };
+    }
+  }
 
   var TEMPLATE_QUICK_SELECT = [
     '<ul class="quick-select">',
@@ -21,7 +85,7 @@
     '        </md-button>',
     '      </td>',
     '      <td colspan="2">',
-    '        <input name="year-filed" type="text" ng-model="picker.yearNum">',
+    '        <input name="year-filed" type="text" ng-model="getYear(picker)">',
     '      </td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addYear(picker)">',
@@ -34,7 +98,7 @@
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="month-filed" type="text" ng-model="picker.monthNum">',
+    '        <input name="month-filed" type="text" ng-model="getMonth(picker)">',
     '      </td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMonth(picker)">',
@@ -53,7 +117,7 @@
     '    </tr>',
     '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
     '      <td ng-repeat="dayInfo in row track by $index">',
-    '        <md-button class="md-icon-button md-mini" ng-click="setDate(dayInfo)" ng-class="getDayClass(dayInfo)">',
+    '        <md-button class="md-icon-button md-mini" ng-click="setDate(picker, dayInfo)" ng-class="getDayClass(dayInfo)">',
     '          {{ dayInfo.day }}',
     '        </md-button>',
     '      </td>',
@@ -66,7 +130,7 @@
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="hour-filed" type="text" ng-model="picker.hourNum">',
+    '        <input name="hour-filed" type="text" value="{{ getHour(picker) }}">',
     '      </td>',
     '      <td class="split-time">',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addHour(picker)">',
@@ -79,7 +143,7 @@
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="minute-filed" type="text" ng-model="picker.minuteNum">',
+    '        <input name="minute-filed" type="text" ng-model="getMinute(picker)">',
     '      </td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMinute(picker)">',
@@ -118,11 +182,17 @@
         dtQSelect: '=',
         dtConfirm: '&',
         format: '@',
-        startDateTime: '=',
-        endDateTime: '=',
-        dateTime: '=',
-        maxDateTime: '&',
-        minDateTime: '&'
+        startDate: '=',
+        endDate: '=',
+        startTime: '=',
+        endTime: '=',
+        startDatetime: '=',
+        endDatetime: '=',
+        date: '=',
+        time: '=',
+        datetime: '=',
+        maxDatetime: '&',
+        minDatetime: '&'
       },
       template: [
         '<div class="ng-datetime">',
@@ -138,84 +208,174 @@
   }
 
   function ngDatetimeCompile(tElement, tAttr) {
-    return function ($scope, element, attr) {
-      if(typeof moment !== 'function') {
+    return function($scope, element, attr) {
+      if (typeof moment !== 'function') {
         console.log('cant find momentjs lib');
         return;
       }
 
-      console.log($scope.dateTime);
+      console.log($scope.datetime);
 
-      switch(attr.dtType) {
-        case 'date':
-          $scope.format = $scope.format || 'YYYY-MM-DD';
-          $scope.pickers = [{
-            isShowDatePicker: true,
-            isShowTimePicker: false,
-            yearNum: '2017',
-            monthNum: '08',
-            days: calcDays($scope.dateTime)
-          }];
-          break;
-        case 'datetime':
-          $scope.format = $scope.format || 'YYYY-MM-DD HH:mm:ss';
-          $scope.pickers = [{
-            isShowDatePicker: true,
-            isShowTimePicker: true,
-            yearNum: '2017',
-            monthNum: '08',
-            hourNum: '23',
-            minuteNum: '34',
-            days: [
-            ['', '' , '' , '', '', '', 1],
-            [2, 3, 4, 5, 6, 7, 8],
-            [9, 10, 11, 12, 13, 14, 15],
-            [16, 17, 18, 19, 20, 21, 22],
-            [23, 24, 25, 26, 27, 28, 29],
-            [30, 31, '', '', '', '' , ''],
-            ]
-          }];
-          break;
-      }
+      $scope.init = function() {
+        switch (attr.dtType) {
+          case 'date':
+            $scope.format = $scope.format || DATE_CALC_FORMAT;
+            $scope.pickers = [{
+              isShowDatePicker: true,
+              isShowTimePicker: false,
+              yearNum: '2017',
+              monthNum: '08',
+              days: calcDays($scope.date),
+              datetime: $scope.date
+            }];
+            break;
+          case 'time':
+            $scope.format = $scope.format || 'HH:mm:ss';
+            $scope.pickers = [{
+              isShowDatePicker: false,
+              isShowTimePicker: true,
+              hourNum: '23',
+              minuteNum: '34',
+              datetime: $scope.datetime
+            }];
+            break;
+          case 'datetime':
+            $scope.format = $scope.format || 'YYYY-MM-DD HH:mm:ss';
+            $scope.pickers = [{
+              isShowDatePicker: true,
+              isShowTimePicker: true,
+              yearNum: '2017',
+              monthNum: '08',
+              hourNum: '23',
+              minuteNum: '34',
+              days: calcDays($scope.datetime),
+              datetime: $scope.datetime
+            }];
+            break;
+        }
+      };
+
+      $scope.init();
 
       $scope.getDayClass = function(dayInfo) {
         return {
-          'normal-day': !dayInfo.isToday && !dayInfo.isWeekEnd,
-          'md-warn': dayInfo.isWeekEnd,
+          'normal-day': !dayInfo.isToday && !dayInfo.isWeekEnd && !dayInfo.isSelected && !dayInfo.isToday,
+          'normal-day md-warn': dayInfo.isWeekEnd,
           'md-primary': dayInfo.isToday,
-          'md-primary md-raised': dayInfo.isEqual,
+          'md-raised': dayInfo.isSelected,
           'not-in-month': !dayInfo.isInMonth
         };
       };
+
+      $scope.setDate = function(picker, dayInfo) {
+        // todo 待优化
+        // if(dayInfo.isInMonth) {
+        //   picker.datetime = moment(picker.datetime).format($scope.format);
+        // } else {
+          $scope.setPickerDateInfo(picker, dayInfo.datetime);
+        // }
+      };
+
+      $scope.setPickerDateInfo = function(picker, dt) {
+        picker.datetime = dt.format($scope.format);
+        picker.days = calcDays(picker.datetime);
+        picker.yearNum = dt.format('YYYY');
+        picker.monthNum = dt.format('MM');
+      };
+
+      $scope.setPickerTimeInfo = function(picker, dt) {
+        // todo 待优化
+        // var monthFormat = 'YYYY-MM';
+        // if(moment(picker.datetime).format(monthFormat) !== dt.format(monthFormat)) {
+        //   picker.days = calcDays(dt);
+        // }
+        picker.datetime = dt.format($scope.format);
+        picker.days = calcDays(dt);
+        picker.hourNum = dt.format('HH');
+        picker.minuteNum = dt.format('mm');
+      };
+
+      $scope = angular.extend($scope, {
+        minusYear: function(picker) {
+          $scope.setPickerDateInfo(picker, moment(picker.datetime).subtractYears(1));
+        },
+        addYear: function(picker) {
+          $scope.setPickerDateInfo(picker, moment(picker.datetime).addYears(1));
+        },
+        minusMonth: function(picker) {
+          $scope.setPickerDateInfo(picker, moment(picker.datetime).subtractMonths(1));
+        },
+        addMonth: function(picker) {
+          $scope.setPickerDateInfo(picker, moment(picker.datetime).addMonths(1));
+        },
+        minusHour: function(picker) {
+          $scope.setPickerTimeInfo(picker, moment(picker.datetime).subtractHours(1));
+        },
+        addHour: function(picker) {
+          $scope.setPickerTimeInfo(picker, moment(picker.datetime).addHours(1));
+        },
+        minusMinute: function(picker) {
+          $scope.setPickerTimeInfo(picker, moment(picker.datetime).subtractMinutes(1));
+        },
+        addMinute: function(picker) {
+          $scope.setPickerTimeInfo(picker, moment(picker.datetime).addMinutes(1));
+        }
+      });
+
+      $scope = angular.extend($scope, {
+        getYear: function(picker) {
+          if(!picker.datetime) {
+            return '1900';
+          }
+          return moment(picker.datetime).format('YYYY');
+        },
+        getMonth: function(picker) {
+          if(!picker.datetime) {
+            return '01';
+          }
+          return moment(picker.datetime).format('MM');
+        },
+        getHour: function(picker) {
+          if(!picker.datetime) {
+            return '00';
+          }
+          return moment(picker.datetime).format('HH');
+        },
+        getMinute: function(picker) {
+          if(!picker.datetime) {
+            return '00';
+          }
+          return moment(picker.datetime).format('mm');
+        },
+      });
     };
   }
 
-  function calcDays(datetimeStr) {
-    var dateFormat = 'YYYY-MM-DD';
-    var datetimeMoment = moment(datetimeStr);
+  function calcDays(datetime) {
+    var datetimeMoment = moment(datetime);
 
     var days = new Array(42);
     var dayLength = datetimeMoment.daysInMonth();
-    var firstDay = moment(datetimeStr).endOf('month').subtractMonths(1).endOf('month').addDays(1);
+    var firstDay = moment(datetime).endOf('month').subtractMonths(1).endOf('month').addDays(1);
     var firstDayWeekDay = firstDay.weekday();
 
-    for(var i = 0; i < dayLength; i++) {
+    for (var i = 0; i < dayLength; i++) {
       var index = i + firstDayWeekDay;
       days[index] = setDay(datetimeMoment, firstDay, index, i, true);
     }
 
-    for(var j = 1; j <= firstDayWeekDay; j++) {
+    for (var j = 1; j <= firstDayWeekDay; j++) {
       var index = firstDayWeekDay - j;
       days[index] = setDay(datetimeMoment, firstDay, index, -j, false);
     }
 
-    for(var k = dayLength; k < 42; k++) {
+    for (var k = dayLength; k < 42; k++) {
       var index = firstDayWeekDay + k;
       days[index] = setDay(datetimeMoment, firstDay, index, k, false);
     }
 
     var result = [];
-    for(var l = 0; l < 6; l++) {
+    for (var l = 0; l < 6; l++) {
       result.push(days.slice(l * 7, (l + 1) * 7));
     }
 
@@ -225,7 +385,7 @@
   }
 
   function setDay(currentDay, firstDay, dayIndex, dateIndex, isInMonth) {
-    var dateFormat = 'YYYY-MM-DD';
+    var dateFormat = DATE_CALC_FORMAT;
     var datetime = moment(firstDay).addDays(dateIndex);
     var weekday = dayIndex % 7;
 
@@ -235,31 +395,7 @@
       isInMonth: isInMonth,
       isWeekEnd: weekday === 0 || weekday === 6,
       isToday: moment().format(dateFormat) === datetime.format(dateFormat),
-      isEqual: currentDay.format(dateFormat) === datetime.format(dateFormat)
-    };
-  }
-
-  if(!moment.addDays) {
-    moment.prototype.addDays = function(num) {
-      return this.add(num, 'days');
-    };
-  }
-
-  if(!moment.addMonths) {
-    moment.prototype.addMonths = function(num) {
-      return this.add(num, 'months');
-    };
-  }
-
-  if(!moment.subtractDays) {
-    moment.prototype.subtractDays = function(num) {
-      return this.subtract(num, 'days');
-    };
-  }
-
-  if(!moment.subtractMonths) {
-    moment.prototype.subtractMonths = function(num) {
-      return this.subtract(num, 'months');
+      isSelected: currentDay.format(dateFormat) === datetime.format(dateFormat)
     };
   }
 })();
