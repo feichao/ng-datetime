@@ -67,28 +67,36 @@
   vertical-align: middle;
 }
 
-.time-picker input,
-.picker-header input {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #ddd;
+.tx-center {
   text-align: center;
-  outline: none;
 }
 
-.time-picker input:focus,
-.picker-header input:focus {
-  border-bottom: 2px solid #ddd;
+md-menu-content.flex-menu-content {
+  max-width: 160px;
+  padding: 5px;
 }
 
-input[name="year-filed"] {
-  width: 72px;
+md-menu-content.flex-menu-content.hour-menu-content {
+  max-width: 226px;
 }
 
-input[name="month-filed"],
-input[name="hour-filed"],
-input[name="minute-filed"] {
+md-menu-content.flex-menu-content.minute-menu-content {
+  max-width: 370px;
+}
+
+.flex-menu-content md-menu-item {
+  height: 36px;
+  min-height: 36px;
   width: 36px;
+}
+
+.flex-menu-content md-menu-item .md-button {
+  height: 36px;
+  margin: 0;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  text-align: center;
 }
 
 .time-picker {

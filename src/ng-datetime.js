@@ -82,9 +82,7 @@
     '          <ng-md-icon size="24" aria-label="left" icon="keyboard_arrow_left"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
-    '      <td colspan="2">',
-    '        <input name="year-filed" type="text" ng-model="picker.yearNum" ng-change="yearChange(picker)">',
-    '      </td>',
+    '      <td colspan="2" class="tx-center">{{ picker.yearNum }}</td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addYear(picker)">',
     '          <ng-md-icon size="24" aria-label="right" icon="keyboard_arrow_right"></ng-md-icon>',
@@ -96,7 +94,14 @@
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="month-filed" type="text" ng-model="picker.monthNum" ng-change="monthChange(picker)">',
+    '        <md-menu>',
+    '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.monthNum }}</md-button>',
+    '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content">',
+    '            <md-menu-item ng-repeat="month in months">',
+    '              <md-button ng-click="setMonth(picker, month)">{{ month }}</md-button>',
+    '            </md-menu-item>',
+    '          </md-menu-content>',
+    '        </md-menu>',
     '      </td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMonth(picker)">',
@@ -128,7 +133,14 @@
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="hour-filed" type="text" ng-model="picker.hourNum" ng-change="hourChange(picker)">',
+    '        <md-menu>',
+    '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.hourNum }}</md-button>',
+    '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content hour-menu-content">',
+    '            <md-menu-item ng-repeat="hour in hours">',
+    '              <md-button ng-click="setHour(picker, hour)">{{ hour }}</md-button>',
+    '            </md-menu-item>',
+    '          </md-menu-content>',
+    '        </md-menu>',
     '      </td>',
     '      <td class="split-time">',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addHour(picker)">',
@@ -141,7 +153,14 @@
     '        </md-button>',
     '      </td>',
     '      <td>',
-    '        <input name="minute-filed" type="text" ng-model="picker.minuteNum" ng-change="minuteChange(picker)">',
+    '        <md-menu>',
+    '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.minuteNum }}</md-button>',
+    '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content minute-menu-content">',
+    '            <md-menu-item ng-repeat="minute in minutes">',
+    '              <md-button ng-click="setMinute(picker, minute)">{{ minute }}</md-button>',
+    '            </md-menu-item>',
+    '          </md-menu-content>',
+    '        </md-menu>',
     '      </td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMinute(picker)">',
@@ -220,8 +239,10 @@
         console.log('cant find momentjs lib');
         return;
       }
-
-      console.log($scope.datetime);
+      $scope.months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+      $scope.hours = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+      $scope.minutes = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
+      $scope.seconds = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
       $scope.init = function () {
         switch (attr.dtType) {
           case DATE_TYPE.DATE:
@@ -261,13 +282,12 @@
 
       $scope.setDate = function (picker, dayInfo) {
         $scope.setPickerDateInfo(picker, dayInfo.datetime);
-        selectDay(picker, dayInfo.datetime);
         dayInfo.dayClass = getDayClass(dayInfo);
       };
 
       $scope.setPickerDateInfo = function (picker, newDt) {
         var pMoment = moment(picker.datetime);
-        if (pMoment.format('MM') !== newDt.format('MM')) {
+        if (pMoment.format('YYYY') !== newDt.format('YYYY') || pMoment.format('MM') !== newDt.format('MM')) {
           picker.days = calcDays(newDt);
         } else if (pMoment.format('DD') !== newDt.format('DD')) {
           unSelectDay(picker, pMoment);
@@ -280,7 +300,7 @@
 
       $scope.setPickerTimeInfo = function (picker, newDt) {
         var pMoment = moment(picker.datetime);
-        if (pMoment.format('MM') !== newDt.format('MM')) {
+        if (pMoment.format('YYYY') !== newDt.format('YYYY') || pMoment.format('MM') !== newDt.format('MM')) {
           picker.days = calcDays(newDt);
         } else {
           unSelectDay(picker, pMoment);
@@ -316,27 +336,14 @@
         addMinute: function (picker) {
           $scope.setPickerTimeInfo(picker, moment(picker.datetime).addMinutes(1));
         },
-        yearChange: function(picker) {
-          if(picker.yearNum < 1900) {
-            picker.yearNum = 1900;
-          } else if(picker.yearNum > 9999) {
-            picker.yearNum = 9999;
-          }
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).year(picker.yearNum));
+        setMonth: function(picker, month) {
+          $scope.setPickerDateInfo(picker, moment(picker.datetime).month(month - 1));
         },
-        monthChange: function(picker) {
-          if(picker.monthNum < 1) {
-            picker.monthNum = 1;
-          } else if(picker.monthNum > 12) {
-            picker.monthNum = 12;
-          }
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).month(picker.monthNum));
+        setHour: function(picker, hour) {
+          $scope.setPickerTimeInfo(picker, moment(picker.datetime).hour(hour));
         },
-        hourChange: function(picker) {
-
-        },
-        minuteChange: function(picker) {
-
+        setMinute: function(picker, minute) {
+          $scope.setPickerTimeInfo(picker, moment(picker.datetime).minute(minute));
         }
       });
     };
@@ -356,6 +363,11 @@
     };
   }
 
+  /**
+   * calc one month days, include current month date, pre month date, next month date
+   * @param {string or moment} datetime: date string or moment object
+   * @returns [array] two-dimensional array with 6 * 7, every row includes one week days
+   */
   function calcDays(datetime) {
     var datetimeMoment = moment(datetime);
 
@@ -391,6 +403,15 @@
     return result;
   }
 
+  /**
+   * set one day data by the offset(dateIndex) to the first day of current month
+   * @param {moment} currentDay: the day selected 
+   * @param {*} firstDay: the first day of currentDay's month
+   * @param {*} dayIndex: index day of a week, Sunday is the first(= 0)
+   * @param {*} dateIndex: offset 
+   * @param {*} isInMonth: whether in current month
+   * @return {object}
+   */
   function setDay(currentDay, firstDay, dayIndex, dateIndex, isInMonth) {
     var dateFormat = DATE_DEFAULT_FORMAT;
     var datetime = moment(firstDay).addDays(dateIndex);
@@ -410,6 +431,11 @@
     return result;
   }
 
+  /**
+   * get the calendar day's style
+   * @param {object} dayInfo 
+   * @returns {string} class string
+   */
   function getDayClass(dayInfo) {
     var classCollection = [];
     if (!dayInfo.isToday && !dayInfo.isWeekEnd && !dayInfo.isSelected) {
@@ -448,7 +474,7 @@
     var days = picker && picker.days || [];
     for(var i = 0; i < days.length; i++) {
       for(var j = 0; j < days[i].length; j++) {
-        if(days[i][j].day === dd) {
+        if(days[i][j].day === dd && days[i][j].isInMonth) {
           days[i][j].isSelected = isSelected;
           days[i][j].dayClass = getDayClass(days[i][j]);
           return;
