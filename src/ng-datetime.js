@@ -74,8 +74,10 @@
   ].join('');
 
   var TEMPLATE_DATE = [
+    '<div layout="{{ isDiaplayBlock() ? \'column\' : \'row\' }}">',
     '<table class="date-picker" ng-repeat="picker in pickers">',
     '  <tbody>',
+    // years && months
     '    <tr class="picker-header" ng-if="picker.isShowDatePicker">',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusYear(picker)">',
@@ -109,6 +111,7 @@
     '        </md-button>',
     '      </td>',
     '    </tr>',
+    // weeks header
     '    <tr class="week-header"  ng-if="picker.isShowDatePicker">',
     '      <td>日</td>',
     '      <td>一</td>',
@@ -118,6 +121,7 @@
     '      <td>五</td>',
     '      <td>六</td>',
     '    </tr>',
+    // days 
     '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
     '      <td ng-repeat="dayInfo in row track by $index">',
     '        <md-button class="md-icon-button md-mini {{ dayInfo.dayClass }}" ng-click="setDate(picker, dayInfo)">',
@@ -125,8 +129,8 @@
     '        </md-button>',
     '      </td>',
     '    </tr>',
+    // times
     '    <tr class="time-picker" ng-if="picker.isShowTimePicker">',
-    '      <td></td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusHour(picker)">',
     '          <ng-md-icon size="24" aria-label="left" icon="keyboard_arrow_left"></ng-md-icon>',
@@ -167,9 +171,11 @@
     '          <ng-md-icon size="24" aria-label="right" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
+    '      <td></td>',
     '    </tr>',
     '  </tbody>',
-    '</table>'
+    '</table>',
+    '</div>'
   ].join('');
 
   var TEMPLATE_ACTIONS = [
@@ -248,32 +254,32 @@
           case DATE_TYPE.DATE:
           default:
             $scope.format = $scope.format || DATE_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, false, moment($scope.choice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(true, false, moment($scope.choice, $scope.format))];
             break;
           case DATE_TYPE.TIME:
             $scope.format = $scope.format || TIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(false, true, moment($scope.choice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(false, true, moment($scope.choice, $scope.format))];
             break;
           case DATE_TYPE.DATETIME:
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, true, moment($scope.choice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(true, true, moment($scope.choice, $scope.format))];
             console.log($scope.pickers);
             break;
           case DATE_TYPE.DATE_RANGE:
             $scope.format = $scope.format || DATE_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, false, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(true, false, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(true, false, moment($scope.startChoice, $scope.format)), getPickerInfo(true, false, moment($scope.endChoice, $scope.format))];
             break;
           case DATE_TYPE.TIME_RANGE:
             $scope.format = $scope.format || TIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(false, true, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(false, true, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(false, true, moment($scope.startChoice, $scope.format)), getPickerInfo(false, true, moment($scope.endChoice, $scope.format))];
             break;
           case DATE_TYPE.DATETIME_RANGE:
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, true, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(true, true, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(true, true, moment($scope.startChoice, $scope.format)), getPickerInfo(true, true, moment($scope.endChoice, $scope.format))];
             break;
-          case DATE_TYPE.DATE_TIMERANGE: // 带解决格式问题
+          case DATE_TYPE.DATE_TIMERANGE:
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, true, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(false, true, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
+            $scope.pickers = [getPickerInfo(true, true, moment($scope.startChoice, $scope.format)), getPickerInfo(false, true, moment($scope.endChoice, $scope.format))];
             break;
         }
       };
@@ -284,32 +290,50 @@
         return $scope.dtType === DATE_TYPE.DATE || $scope.dtType === DATE_TYPE.DATETIME || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
       };
 
+      $scope.isDiaplayBlock = function() {
+        return $scope.dtType === DATE_TYPE.TIME_RANGE || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
+      };
+
       $scope.setDate = function (picker, dayInfo) {
         $scope.setPickerDateInfo(picker, dayInfo.datetime);
         dayInfo.dayClass = getDayClass(dayInfo);
       };
 
       $scope.setPickerDateInfo = function (picker, newDt) {
-        var pMoment = moment(picker.datetime);
-        if (pMoment.format('YYYY') !== newDt.format('YYYY') || pMoment.format('MM') !== newDt.format('MM')) {
-          picker.days = calcDays(newDt);
-        } else if (pMoment.format('DD') !== newDt.format('DD')) {
-          unSelectDay(picker, pMoment);
-          selectDay(picker, newDt);
-        }
-        picker.datetime = newDt.format(DATETIME_DEFAULT_FORMAT);
-        picker.yearNum = newDt.format('YYYY');
-        picker.monthNum = newDt.format('MM');
+        $scope.setPickerDatetimeInfo(picker, newDt);
       };
 
       $scope.setPickerTimeInfo = function (picker, newDt) {
+        $scope.setPickerDatetimeInfo(picker, newDt);
+      };
+
+      $scope.setPickerDatetimeInfo = function(picker, newDt) {
+        var picker0 = $scope.pickers[0];
+        var picker1 = $scope.pickers[1];
         var pMoment = moment(picker.datetime);
+
         if (pMoment.format('YYYY') !== newDt.format('YYYY') || pMoment.format('MM') !== newDt.format('MM')) {
           picker.days = calcDays(newDt);
-        } else {
-          unSelectDay(picker, pMoment);
-          selectDay(picker, newDt);
+        } else if (pMoment.format('DD') !== newDt.format('DD')) {
+          if($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { 
+            unSelectDay(picker0, pMoment);
+            selectDay(picker0, newDt);
+          } else {
+            unSelectDay(picker, pMoment);
+            selectDay(picker, newDt);
+          }
         }
+        
+        if($scope.dtType === DATE_TYPE.DATE_TIMERANGE) {
+          picker0.yearNum = picker1.yearNum = newDt.format('YYYY');
+          picker0.monthNum = picker1.monthNum = newDt.format('MM');
+          picker0.datetime = newDt.format(DATE_DEFAULT_FORMAT) + ' ' + moment(picker0.datetime).format(TIME_DEFAULT_FORMAT);
+          picker1.datetime = newDt.format(DATE_DEFAULT_FORMAT) + ' ' + moment(picker1.datetime).format(TIME_DEFAULT_FORMAT);
+        } else {
+          picker.yearNum = newDt.format('YYYY');
+          picker.monthNum = newDt.format('MM');
+        }
+
         picker.datetime = newDt.format(DATETIME_DEFAULT_FORMAT);
         picker.hourNum = newDt.format('HH');
         picker.minuteNum = newDt.format('mm');
@@ -376,31 +400,18 @@
     };
   }
 
-  function getPickerInfo(isDate, isTime, datetime) {
-    var dt = moment(datetime);
-    var result = {};
-    if(isDate) {
-      result = {
-        datetime: datetime,
-        days: calcDays(dt),
-        isShowDatePicker: isDate,
-        isShowTimePicker: isTime,
-        yearNum: dt.format('YYYY'),
-        monthNum: dt.format('MM')
-      };
-    } 
-    
-    if(isTime) {
-      angular.extend(result, {
-        datetime: datetime,
-        isShowDatePicker: isDate,
-        isShowTimePicker: isTime,
-        hourNum: dt.format('HH'),
-        minuteNum: dt.format('mm')
-      });
-    }
-
-    return result;
+  function getPickerInfo(isDate, isTime, mDatetime) {
+    var datetime = mDatetime.format(DATETIME_DEFAULT_FORMAT);
+    return {
+      datetime: datetime,
+      days: calcDays(mDatetime),
+      isShowDatePicker: isDate,
+      isShowTimePicker: isTime,
+      yearNum: mDatetime.format('YYYY'),
+      monthNum: mDatetime.format('MM'),
+      hourNum: mDatetime.format('HH'),
+      minuteNum: mDatetime.format('mm')
+    };
   }
 
   /**
