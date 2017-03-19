@@ -174,7 +174,7 @@
 
   var TEMPLATE_ACTIONS = [
     '<div layout="row" class="actions">',
-    '  <md-button class="md-raised" ng-click="setToday()">今天</md-button>',
+    '  <md-button class="md-raised" ng-click="setToday()" ng-if="isSetToday()">今天</md-button>',
     '  <span flex></span>',
     '  <md-button class="md-warn" ng-click="cancel()">取消</md-button>',
     '  <span flex="5"></span>',
@@ -244,41 +244,45 @@
       $scope.minutes = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
       $scope.seconds = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
       $scope.init = function () {
-        switch (attr.dtType) {
+        switch ($scope.dtType) {
           case DATE_TYPE.DATE:
           default:
             $scope.format = $scope.format || DATE_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, false, $scope.choice)];
+            $scope.pickers = [getPickerInfo(true, false, moment($scope.choice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             break;
           case DATE_TYPE.TIME:
             $scope.format = $scope.format || TIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(false, true, $scope.choice)];
+            $scope.pickers = [getPickerInfo(false, true, moment($scope.choice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             break;
           case DATE_TYPE.DATETIME:
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, true, $scope.choice)];
+            $scope.pickers = [getPickerInfo(true, true, moment($scope.choice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             console.log($scope.pickers);
             break;
           case DATE_TYPE.DATE_RANGE:
             $scope.format = $scope.format || DATE_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, false, $scope.startChoice), getPickerInfo(true, false, $scope.endChoice)];
+            $scope.pickers = [getPickerInfo(true, false, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(true, false, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             break;
           case DATE_TYPE.TIME_RANGE:
             $scope.format = $scope.format || TIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(false, true, $scope.startChoice), getPickerInfo(false, true, $scope.endChoice)];
+            $scope.pickers = [getPickerInfo(false, true, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(false, true, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             break;
           case DATE_TYPE.DATETIME_RANGE:
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, true, $scope.startChoice), getPickerInfo(true, true, $scope.endChoice)];
+            $scope.pickers = [getPickerInfo(true, true, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(true, true, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             break;
           case DATE_TYPE.DATE_TIMERANGE: // 带解决格式问题
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
-            $scope.pickers = [getPickerInfo(true, true, $scope.startChoice), getPickerInfo(false, true, $scope.endChoice)];
+            $scope.pickers = [getPickerInfo(true, true, moment($scope.startChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT)), getPickerInfo(false, true, moment($scope.endChoice, $scope.format).format(DATETIME_DEFAULT_FORMAT))];
             break;
         }
       };
 
       $scope.init();
+
+      $scope.isSetToday = function() {
+        return $scope.dtType === DATE_TYPE.DATE || $scope.dtType === DATE_TYPE.DATETIME || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
+      };
 
       $scope.setDate = function (picker, dayInfo) {
         $scope.setPickerDateInfo(picker, dayInfo.datetime);
@@ -293,7 +297,7 @@
           unSelectDay(picker, pMoment);
           selectDay(picker, newDt);
         }
-        picker.datetime = newDt.format($scope.format);
+        picker.datetime = newDt.format(DATETIME_DEFAULT_FORMAT);
         picker.yearNum = newDt.format('YYYY');
         picker.monthNum = newDt.format('MM');
       };
@@ -306,7 +310,7 @@
           unSelectDay(picker, pMoment);
           selectDay(picker, newDt);
         }
-        picker.datetime = newDt.format($scope.format);
+        picker.datetime = newDt.format(DATETIME_DEFAULT_FORMAT);
         picker.hourNum = newDt.format('HH');
         picker.minuteNum = newDt.format('mm');
       };
@@ -344,6 +348,29 @@
         },
         setMinute: function(picker, minute) {
           $scope.setPickerTimeInfo(picker, moment(picker.datetime).minute(minute));
+        },
+        setToday: function() {
+          var picker0 = $scope.pickers[0];
+          if(picker0) {
+            $scope.setPickerDateInfo(picker0, moment());
+          }
+        },
+        cancel: function() {
+
+        },
+        confirm: function() {
+          var picker0 = $scope.pickers[0];
+          var picker1 = $scope.pickers[1];
+          if(typeof $scope.dtConfirm === 'function') {
+            if(picker0 && picker1) {
+              $scope.startChoice = moment(picker0.datetime).format($scope.format);
+              $scope.endChoice = moment(picker1.datetime).format($scope.format);
+              $scope.dtConfirm({ startChoice: $scope.startChoice, endChoice: $scope.endChoice });
+            } else {
+              $scope.choice = moment(picker0.datetime).format($scope.format);
+              $scope.dtConfirm({ choice: $scope.choice });
+            }
+          }
         }
       });
     };
@@ -351,16 +378,29 @@
 
   function getPickerInfo(isDate, isTime, datetime) {
     var dt = moment(datetime);
-    return {
-      datetime: datetime,
-      days: calcDays(dt),
-      isShowDatePicker: isDate,
-      isShowTimePicker: isTime,
-      yearNum: dt.format('YYYY'),
-      monthNum: dt.format('MM'),
-      hourNum: dt.format('HH'),
-      minuteNum: dt.format('mm')
-    };
+    var result = {};
+    if(isDate) {
+      result = {
+        datetime: datetime,
+        days: calcDays(dt),
+        isShowDatePicker: isDate,
+        isShowTimePicker: isTime,
+        yearNum: dt.format('YYYY'),
+        monthNum: dt.format('MM')
+      };
+    } 
+    
+    if(isTime) {
+      angular.extend(result, {
+        datetime: datetime,
+        isShowDatePicker: isDate,
+        isShowTimePicker: isTime,
+        hourNum: dt.format('HH'),
+        minuteNum: dt.format('mm')
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -442,10 +482,10 @@
       classCollection.push('normal-day');
     }
 
-    if (dayInfo.isWeekEnd) {
+    if (dayInfo.isWeekEnd && !dayInfo.isToday) {
       classCollection.push('md-warn');
-    }
-
+    } 
+    
     if (dayInfo.isToday) {
       classCollection.push('md-primary');
     }

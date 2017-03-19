@@ -118,27 +118,31 @@
     </div>
     <div class="wrapper">
       <h3>Date</h3>
-      <ng-datetime dt-type="date" choice="datetime"></ng-datetime>
+      <ng-datetime dt-type="date" choice="date" dt-confirm="confirm(choice)"></ng-datetime>
+    </div>
+    <div class="wrapper">
+      <h3>Time</h3>
+      <ng-datetime dt-type="time" choice="time" dt-confirm="confirm(choice)"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Datetime</h3>
-      <ng-datetime dt-type="datetime" choice="datetime"></ng-datetime>
+      <ng-datetime dt-type="datetime" choice="datetime" dt-confirm="confirm(choice)"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Date-Range</h3>
-      <ng-datetime dt-type="date-range" start-choice="datetime" end-choice="datetime"></ng-datetime>
+      <ng-datetime dt-type="date-range" start-choice="date" end-choice="date" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Time-Range</h3>
-      <ng-datetime dt-type="time-range" start-choice="datetime" end-choice="datetime"></ng-datetime>
+      <ng-datetime dt-type="time-range" start-choice="time" end-choice="time" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Datetime-Range</h3>
-      <ng-datetime dt-type="datetime-range" start-choice="datetime" end-choice="datetime"></ng-datetime>
+      <ng-datetime dt-type="datetime-range" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Date-TimeRange</h3>
-      <ng-datetime dt-type="date-timerange" start-choice="datetime" end-choice="datetime"></ng-datetime>
+      <ng-datetime dt-type="date-timerange" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
     </div>
   </div>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>
