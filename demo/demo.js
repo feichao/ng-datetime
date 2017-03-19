@@ -7,6 +7,9 @@
       $scope.time = "10:34:10";
     	$scope.datetime = "2017-03-17 10:34:10";
 
+      $scope.max = '2017-03-29';
+      $scope.min = '2017-03-03';
+
       $scope.confirm = function(a, b) {
         console.log('start: ' + a);
         console.log('end: ' + b);

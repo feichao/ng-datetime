@@ -48,6 +48,11 @@
   background: #dfdfdf;
 }
 
+.date-picker .md-button.normal-day[disabled],
+.date-picker .md-button.normal-day[disabled]:hover {
+  background: transparent;
+}
+
 .date-picker .md-button.not-in-month {
   opacity: 0.24;
 }
