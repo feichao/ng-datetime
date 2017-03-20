@@ -118,11 +118,11 @@
     </div>
     <div class="wrapper">
       <h3>Date</h3>
-      <ng-datetime dt-type="date" choice="date" dt-confirm="confirm(choice)" max="{{ max }}" min="{{ min }}"></ng-datetime>
+      <ng-datetime dt-type="date" choice="date" dt-confirm="confirm(choice)" max="{{ max }}" min="{{ min }}" dt-q-select="qSelect"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Time</h3>
-      <ng-datetime dt-type="time" choice="time" dt-confirm="confirm(choice)"></ng-datetime>
+      <ng-datetime dt-type="time" choice="time" dt-confirm="confirm(choice)" dt-q-select="qSelect"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Datetime</h3>
@@ -130,19 +130,19 @@
     </div>
     <div class="wrapper">
       <h3>Date-Range</h3>
-      <ng-datetime dt-type="date-range" start-choice="date" end-choice="date" max="{{ max }}" min="{{ min }}" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
+      <ng-datetime dt-type="date-range" start-choice="date" end-choice="date" max="{{ max }}" min="{{ min }}" dt-confirm="confirm(startChoice, endChoice)" dt-q-select="qSelect"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Time-Range</h3>
-      <ng-datetime dt-type="time-range" start-choice="time" end-choice="time" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
+      <ng-datetime dt-type="time-range" start-choice="time" end-choice="time" dt-confirm="confirm(startChoice, endChoice)" dt-q-select="qSelect"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Datetime-Range</h3>
-      <ng-datetime dt-type="datetime-range" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"  max="2017-05-05" min="2017-01-03"></ng-datetime>
+      <ng-datetime dt-type="datetime-range" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"  max="2017-05-05" min="2017-01-03" dt-q-select="qSelect"></ng-datetime>
     </div>
     <div class="wrapper">
       <h3>Date-TimeRange</h3>
-      <ng-datetime dt-type="date-timerange" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"  max="2017-05-05" min="2017-01-03"></ng-datetime>
+      <ng-datetime dt-type="date-timerange" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"  max="2017-05-05" min="2017-01-03" dt-q-select="qSelect"></ng-datetime>
     </div>
   </div>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>

@@ -4,6 +4,12 @@
   var moment = moment || window.moment;
 
   if (moment && moment.prototype) {
+    if (!moment.addSeconds) {
+      moment.prototype.addSeconds = function (num) {
+        return this.add(num, 'seconds');
+      };
+    }
+
     if (!moment.addMinutes) {
       moment.prototype.addMinutes = function (num) {
         return this.add(num, 'minutes');
@@ -31,6 +37,12 @@
     if (!moment.addYears) {
       moment.prototype.addYears = function (num) {
         return this.add(num, 'years');
+      };
+    }
+
+    if (!moment.subtractSeconds) {
+      moment.prototype.subtractSeconds = function (num) {
+        return this.subtract(num, 'seconds');
       };
     }
 
@@ -67,7 +79,7 @@
 
   var TEMPLATE_QUICK_SELECT = [
     '<ul class="quick-select">',
-    '  <li ng-repeat="qs in qSelectors">',
+    '  <li ng-repeat="qs in dtQSelect">',
     '    <md-button ng-click="qSelect(qs.value)">{{ qs.label }}</md-button>',
     '  </li>',
     '</ul>',
@@ -225,7 +237,9 @@
         endChoice: '=',
         choice: '=',
         max: '@',
-        min: '@'
+        min: '@',
+        maxLength: '@',
+        minLength: '@'
       },
       template: [
         '<div class="ng-datetime">',
@@ -256,6 +270,7 @@
         switch ($scope.dtType) {
           case DATE_TYPE.DATE:
           default:
+            $scope.dtType = DATE_TYPE.DATE; // default
             $scope.format = $scope.format || DATE_DEFAULT_FORMAT;
             $scope.pickers = [$scope.getPickerInfo(true, false, moment($scope.choice, $scope.format), 0)];
             break;
@@ -300,7 +315,11 @@
           minuteNum: mDatetime.format('mm')
         };
 
-        setDaysDisabledStatus(result.days, $scope.isDateRange, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format));
+        if($scope.isDateRange) {
+          setDaysDisabledStatus(result.days, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format));
+        } else if($scope.minDate || $scope.maxDate) {
+          setDaysDisabledStatus(result.days, false, pickerIndex, $scope.minDate, $scope.maxDate);
+        }
 
         return result;
       };
@@ -310,16 +329,8 @@
       $scope.isDiaplayBlock = $scope.dtType === DATE_TYPE.TIME_RANGE || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
 
       $scope.setDate = function (picker, dayInfo) {
-        $scope.setPickerDateInfo(picker, dayInfo.datetime);
+        $scope.setPickerDatetimeInfo(picker, dayInfo.datetime);
         dayInfo.dayClass = getDayClass(dayInfo);
-      };
-
-      $scope.setPickerDateInfo = function (picker, newDt) {
-        $scope.setPickerDatetimeInfo(picker, newDt);
-      };
-
-      $scope.setPickerTimeInfo = function (picker, newDt) {
-        $scope.setPickerDatetimeInfo(picker, newDt);
       };
 
       $scope.setPickerDatetimeInfo = function(picker, newDt) {
@@ -361,54 +372,85 @@
         if($scope.isDateRange) {
           var picker0Dt = moment($scope.pickers[0].datetime);
           var picker1Dt = moment($scope.pickers[1].datetime);
-          console.log(picker0Dt);
-          console.log(picker1Dt);
           setDaysDisabledStatus($scope.pickers[0].days, true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt);
           setDaysDisabledStatus($scope.pickers[1].days, true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt);
         } else if($scope.minDate || $scope.maxDate) {
-          setDaysDisabledStatus(picker.days, false, 0, $scope.minDate, $scope.maxDate, moment($scope.pickers[0].datetime));
+          setDaysDisabledStatus(picker.days, false, 0, $scope.minDate, $scope.maxDate);
+        }
+      };
+
+      $scope.qSelect = function(seconds) {
+        var dtType = $scope.dtType;
+        var oneDaySeconds = 24 * 60 * 60;
+        if((dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATE_RANGE) && seconds < oneDaySeconds) {
+          return;
+        }
+
+        if((dtType === DATE_TYPE.TIME || dtType === DATE_TYPE.TIME_RANGE) && seconds > oneDaySeconds) {
+          return;
+        }
+
+        var picker;
+        if(dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
+          picker = $scope.pickers[0];
+          $scope._setToday(picker);
+          $scope.minusSeconds(picker, seconds);
+        } else { // range
+          $scope._setToday($scope.pickers[0]);
+          $scope._setToday($scope.pickers[1]);
+          $scope.minusSeconds($scope.pickers[0], seconds);
+        }
+
+      };
+
+      $scope._setToday = function(picker) {
+        if(picker) {
+          $scope.setPickerDatetimeInfo(picker, moment());
         }
       };
 
       $scope = angular.extend($scope, {
         minusYear: function (picker) {
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).subtractYears(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractYears(1));
         },
         addYear: function (picker) {
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).addYears(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addYears(1));
         },
         minusMonth: function (picker) {
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).subtractMonths(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractMonths(1));
         },
         addMonth: function (picker) {
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).addMonths(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addMonths(1));
         },
         minusHour: function (picker) {
-          $scope.setPickerTimeInfo(picker, moment(picker.datetime).subtractHours(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractHours(1));
         },
         addHour: function (picker) {
-          $scope.setPickerTimeInfo(picker, moment(picker.datetime).addHours(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addHours(1));
         },
         minusMinute: function (picker) {
-          $scope.setPickerTimeInfo(picker, moment(picker.datetime).subtractMinutes(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractMinutes(1));
         },
         addMinute: function (picker) {
-          $scope.setPickerTimeInfo(picker, moment(picker.datetime).addMinutes(1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addMinutes(1));
+        },
+        minusSeconds: function (picker, seconds) {
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractSeconds(seconds || 1));
+        },
+        addSeconds: function (picker, seconds) {
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addSeconds(seconds || 1));
         },
         setMonth: function(picker, month) {
-          $scope.setPickerDateInfo(picker, moment(picker.datetime).month(month - 1));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).month(month - 1));
         },
         setHour: function(picker, hour) {
-          $scope.setPickerTimeInfo(picker, moment(picker.datetime).hour(hour));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).hour(hour));
         },
         setMinute: function(picker, minute) {
-          $scope.setPickerTimeInfo(picker, moment(picker.datetime).minute(minute));
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).minute(minute));
         },
         setToday: function() {
-          var picker0 = $scope.pickers[0];
-          if(picker0) {
-            $scope.setPickerDateInfo(picker0, moment());
-          }
+          $scope._setToday($scope.pickers[0]);
         },
         cancel: function() {
 
@@ -428,7 +470,7 @@
           }
         }
       });
-
+      
       $scope.init();
     };
   }

@@ -5,12 +5,21 @@
 }
 
 .quick-select {
+  border-right: 1px solid #e7e7e7;
   line-height: 30px;
   list-style: none;
   margin: 0;
   max-height: 320px;
   overflow: auto;
   padding: 0;
+}
+
+.quick-select li:first-child {
+  margin-top: 10px; 
+}
+
+.quick-select li {
+  margin: 0 10px; 
 }
 
 .actions {
@@ -25,6 +34,11 @@
   min-height: 32px;
   min-width: 72px;
   padding: 0;
+}
+
+.quick-select .md-button {
+  text-align: left;
+  width: 100%;
 }
 
 .date-picker {
