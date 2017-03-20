@@ -41,20 +41,21 @@
 }
 
 .date-picker .md-button.normal-day {
-  background: #f4f4f4;
+  background: #efefef;
 }
 
 .date-picker .md-button.normal-day:hover {
-  background: #dfdfdf;
+  background: #d7d7d7;
 }
 
 .date-picker .md-button.normal-day[disabled],
 .date-picker .md-button.normal-day[disabled]:hover {
   background: transparent;
+  cursor: not-allowed;
 }
 
 .date-picker .md-button.not-in-month {
-  opacity: 0.24;
+  opacity: 0.5;
 }
 
 .week-header td {
