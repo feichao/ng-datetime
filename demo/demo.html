@@ -117,32 +117,39 @@
       </div>
     </div>
     <div class="wrapper">
-      <h3>Date</h3>
-      <ng-datetime dt-type="date" choice="date" dt-confirm="confirm(choice)" max="{{ max }}" min="{{ min }}" dt-q-select="qSelect"></ng-datetime>
+      <h3>Date Picker with max & min</h3>
+      <h4>You select: {{ date }}</h4>
+      <ng-datetime dt-type="date" choice="date" dt-confirm="confirm(choice)" max="{{ max }}" min="{{ min }}"></ng-datetime>
     </div>
     <div class="wrapper">
-      <h3>Time</h3>
-      <ng-datetime dt-type="time" choice="time" dt-confirm="confirm(choice)" dt-q-select="qSelect"></ng-datetime>
+      <h3>Time Picker</h3>
+      <h4>You select: {{ time }}</h4>
+      <ng-datetime dt-type="time" choice="time" dt-confirm="confirm(choice)"></ng-datetime>
     </div>
     <div class="wrapper">
-      <h3>Datetime</h3>
-      <ng-datetime dt-type="datetime" choice="datetime" dt-confirm="confirm(choice)" max="2017-05-05" min="2017-01-03"></ng-datetime>
+      <h3>Datetime Picker with quick-select</h3>
+      <h4>You select: {{ datetime }}</h4>
+      <ng-datetime dt-type="datetime" choice="datetime" dt-q-select="qSelect" dt-confirm="confirm(choice)"></ng-datetime>
     </div>
     <div class="wrapper">
-      <h3>Date-Range</h3>
-      <ng-datetime dt-type="date-range" start-choice="date" end-choice="date" dt-confirm="confirm(startChoice, endChoice)" dt-language="cn" dt-q-select="qSelect"></ng-datetime>
+      <h3>Date-Range Picker with max-length = 10 days & min-length = 5 days</h3>
+      <h4>You select: {{ startDate }} to {{ endDate }}</h4>
+      <ng-datetime dt-type="date-range" start-choice="startDate" end-choice="endDate" dt-confirm="confirm(startChoice, endChoice)" max-length="10" min-length="5"></ng-datetime>
     </div>
     <div class="wrapper">
-      <h3>Time-Range</h3>
-      <ng-datetime dt-type="time-range" start-choice="time" end-choice="time" dt-confirm="confirm(startChoice, endChoice)" dt-q-select="qSelect"></ng-datetime>
+      <h3>Time-Range Picker</h3>
+      <h4>You select: {{ startTime }} to {{ endTime }}</h4>
+      <ng-datetime dt-type="time-range" start-choice="startTime" end-choice="endTime" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime>
     </div>
     <div class="wrapper">
-      <h3>Datetime-Range</h3>
-      <ng-datetime dt-type="datetime-range" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"  max="2017-05-05" min="2017-01-03" dt-q-select="qSelect"></ng-datetime>
+      <h3>Datetime-Range Picker with quick-select</h3>
+      <h4>You select: {{ startDatetime }} to {{ endDatetime }}</h4>
+      <ng-datetime dt-type="datetime-range" start-choice="startDatetime" end-choice="endDatetime" dt-confirm="confirm(startChoice, endChoice)" dt-q-select="qSelectRange"></ng-datetime>
     </div>
     <div class="wrapper">
-      <h3>Date-TimeRange</h3>
-      <ng-datetime dt-type="date-timerange" start-choice="datetime" end-choice="datetime" dt-confirm="confirm(startChoice, endChoice)"  max="2017-05-05" min="2017-01-03" dt-q-select="qSelect"></ng-datetime>
+      <h3>Date-TimeRange Picker with customer language</h3>
+      <h4>You select: {{ startDatetime0 }} to {{ endDatetime0 }}</h4>
+      <ng-datetime dt-type="date-timerange" start-choice="startDatetime0" end-choice="endDatetime0" dt-confirm="confirm(startChoice, endChoice)" dt-language="dtLanguage"></ng-datetime>
     </div>
   </div>
   <script type="text/javascript" src="http://7xlphe.com1.z0.glb.clouddn.com/angular.min-1.5.8.js"></script>
