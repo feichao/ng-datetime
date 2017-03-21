@@ -75,6 +75,12 @@
         return this.subtract(num, 'years');
       };
     }
+
+    if (!moment.diffDays) {
+      moment.prototype.diffDays = function (m) {
+        return this.diff(moment(m), 'days');
+      };
+    }
   }
 
   var TEMPLATE_QUICK_SELECT = [
@@ -125,13 +131,7 @@
     '    </tr>',
     // weeks header
     '    <tr class="week-header"  ng-if="picker.isShowDatePicker">',
-    '      <td>日</td>',
-    '      <td>一</td>',
-    '      <td>二</td>',
-    '      <td>三</td>',
-    '      <td>四</td>',
-    '      <td>五</td>',
-    '      <td>六</td>',
+    '      <td ng-repeat="week in staticString.weeks">{{ week }}</td>',
     '    </tr>',
     // days 
     '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
@@ -193,11 +193,11 @@
 
   var TEMPLATE_ACTIONS = [
     '<div layout="row" class="actions">',
-    '  <md-button class="md-raised" ng-click="setToday()" ng-if="isSetToday">今天</md-button>',
+    '  <md-button class="md-raised" ng-click="setToday()" ng-if="isSetToday">{{ staticString.today }}</md-button>',
     '  <span flex></span>',
-    '  <md-button class="md-warn" ng-click="cancel()">取消</md-button>',
+    '  <md-button class="md-warn" ng-click="cancel()">{{ staticString.cancel }}</md-button>',
     '  <span flex="5"></span>',
-    '  <md-button class="md-primary md-raised" ng-click="confirm()">确定</md-button>',
+    '  <md-button class="md-primary md-raised" ng-click="confirm()">{{ staticString.confirm }}</md-button>',
     '</div>'
   ].join('');
 
@@ -211,20 +211,46 @@
     DATE_TIMERANGE: 'date-timerange'
   };
 
+  var STATIC_STRING = {
+    en: {
+      today: 'Today',
+      cancel: 'Cancel',
+      confirm: 'Ok',
+      weeks: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    },
+    cn: {
+      today: '今天',
+      cancel: '取消',
+      confirm: '确定',
+      weeks: ['日', '一', '二', '三', '四', '五', '六']
+    }
+  };
+
   var DATE_DEFAULT_FORMAT = 'YYYY-MM-DD';
   var TIME_DEFAULT_FORMAT = 'HH:mm:ss';
   var DATETIME_DEFAULT_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
   angular
     .module('ngDatetime', [])
-    .directive('ngDatetime', ['$compile', ngDatetimeDirective]);
+    .directive('ngDatetime', ngDatetimeDirective);
 
   /**
-   * dtType: date, time, datetime, date-range, time-range, datetime-range, date-timerange
-   * dtQSelect: quick select,
-   * dtConfirm: callback when confirm select date
+   * ngDatetime directive
+   * @returns {
+   *  dtType: {@} illustrate current datetime pciker type, detail for DATE_TYPE
+   *  dtQSelect: {=} illustrate quick select
+   *  dtConfirm: {&} callback when click confirm button
+   *  format: {@} datetime format
+   *  startChoice: {=} illustrate start datetime if dtType is **-range 
+   *  endChoice: {=} illustrate end datetime if dtType is **-range 
+   *  choice: {=} illustrate datetime if dtType is not **-range
+   *  max: {@} illustrate max datetime user can select
+   *  max: {@} illustrate min datetime user can select
+   *  maxLength: {@} illustrate max length between startChoice & endChoice only if dtType is **-range
+   *  minLength: {@} illustrate min length between startChoice & endChoice only if dtType is **-range 
+   * }
    */
-  function ngDatetimeDirective($compile) {
+  function ngDatetimeDirective() {
     return {
       restrict: 'E',
       scope: {
@@ -232,14 +258,20 @@
         dtQSelect: '=',
         dtConfirm: '&',
         format: '@',
-        // datetime
+
+        // datetime params
         startChoice: '=',
         endChoice: '=',
         choice: '=',
+
+        // restrict datetime params
         max: '@',
         min: '@',
         maxLength: '@',
-        minLength: '@'
+        minLength: '@',
+
+        // language
+        dtLanguage: '='
       },
       template: [
         '<div class="ng-datetime">',
@@ -260,9 +292,25 @@
         console.log('cant find momentjs lib');
         return;
       }
+
       $scope.months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
       $scope.hours = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
       $scope.minutes = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
+
+      $scope.staticString = {};
+      $scope.dtLanguage = $scope.dtLanguage || attr.dtLanguage || 'cn';
+      if($scope.dtLanguage === 'en') {
+        $scope.staticString = STATIC_STRING['en'];
+      } else if($scope.dtLanguage === 'cn') {
+        $scope.staticString = STATIC_STRING['cn'];
+      } else {
+        if(typeof $scope.dtLanguage === 'string') {
+          $scope.staticString = STATIC_STRING['cn'];
+        } else {
+          $scope.staticString = angular.extend({}, STATIC_STRING['cn'], $scope.dtLanguage);
+        }
+      }
+
       $scope.init = function () {
         $scope.maxDate = $scope.max ? moment($scope.max, $scope.format) : undefined;
         $scope.minDate = $scope.min ? moment($scope.min, $scope.format) : undefined;
@@ -281,7 +329,6 @@
           case DATE_TYPE.DATETIME:
             $scope.format = $scope.format || DATETIME_DEFAULT_FORMAT;
             $scope.pickers = [$scope.getPickerInfo(true, true, moment($scope.choice, $scope.format), 0)];
-            console.log($scope.pickers);
             break;
           case DATE_TYPE.DATE_RANGE:
             $scope.format = $scope.format || DATE_DEFAULT_FORMAT;
@@ -316,7 +363,7 @@
         };
 
         if($scope.isDateRange) {
-          setDaysDisabledStatus(result.days, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format));
+          setDaysDisabledStatus(result.days, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
         } else if($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(result.days, false, pickerIndex, $scope.minDate, $scope.maxDate);
         }
@@ -372,8 +419,8 @@
         if($scope.isDateRange) {
           var picker0Dt = moment($scope.pickers[0].datetime);
           var picker1Dt = moment($scope.pickers[1].datetime);
-          setDaysDisabledStatus($scope.pickers[0].days, true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt);
-          setDaysDisabledStatus($scope.pickers[1].days, true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt);
+          setDaysDisabledStatus($scope.pickers[0].days, true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
+          setDaysDisabledStatus($scope.pickers[1].days, true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
         } else if($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(picker.days, false, 0, $scope.minDate, $scope.maxDate);
         }
@@ -400,7 +447,6 @@
           $scope._setToday($scope.pickers[1]);
           $scope.minusSeconds($scope.pickers[0], seconds);
         }
-
       };
 
       $scope._setToday = function(picker) {
@@ -597,7 +643,7 @@
   }
 
   // according to max & min & range status to get whether a day is disabled
-  function setDaysDisabledStatus(days, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt) {
+  function setDaysDisabledStatus(days, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
     for(var i = 0; i < days.length; i++) {
       for(var j = 0; j < days[i].length; j++) {
         var daysInfo = days[i][j];
@@ -610,6 +656,18 @@
         if(isDateRange) {
           if(currentPickerIndex === 0 && datetime.isAfter(picker1Dt) || currentPickerIndex === 1 && datetime.isBefore(picker0Dt)) {
             daysInfo.isDisabled = true;
+          }
+
+          if(minLength > 0) {
+            if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) < minLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) < minLength) {
+              daysInfo.isDisabled = true;
+            }
+          }
+
+          if(maxLength > 0) {
+            if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) > maxLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) > maxLength) {
+              daysInfo.isDisabled = true;
+            }
           }
         }
       }

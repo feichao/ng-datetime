@@ -33,6 +33,12 @@
         value: 365 * 24 * 60 * 60,
       }];
 
+      $scope.dtLanguage = {
+        today: 'Jy',
+        confirm: 'Okk',
+        weeks: ['Rii', 'Yii', 'Er', 'Sam', 'Si', 'Wui', 'Liu']
+      };
+
       $scope.confirm = function(a, b) {
         console.log('start: ' + a);
         console.log('end: ' + b);
