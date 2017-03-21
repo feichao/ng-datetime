@@ -26,6 +26,10 @@
   margin: 15px 10px;
 }
 
+.actions .md-button:last-child {
+  margin-left: 10px;
+}
+
 .actions .md-button,
 .quick-select .md-button {
   height: 32px;

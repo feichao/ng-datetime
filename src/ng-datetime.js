@@ -86,7 +86,7 @@
   var TEMPLATE_QUICK_SELECT = [
     '<ul class="quick-select">',
     '  <li ng-repeat="qs in dtQSelect">',
-    '    <md-button ng-click="qSelect(qs.value)">{{ qs.label }}</md-button>',
+    '    <md-button ng-click="qSelect(qs.value)">{{ ::qs.label }}</md-button>',
     '  </li>',
     '</ul>',
   ].join('');
@@ -131,14 +131,14 @@
     '    </tr>',
     // weeks header
     '    <tr class="week-header"  ng-if="picker.isShowDatePicker">',
-    '      <td ng-repeat="week in staticString.weeks">{{ week }}</td>',
+    '      <td ng-repeat="week in staticString.weeks">{{ ::week }}</td>',
     '    </tr>',
     // days 
     '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
     '      <td ng-repeat="dayInfo in row track by $index">',
     '        <md-button class="md-icon-button md-mini {{ dayInfo.dayClass }}" ng-click="setDate(picker, dayInfo)" ',
     '           ng-disabled="dayInfo.isDisabled">',
-    '          {{ dayInfo.day }}',
+    '          {{ ::dayInfo.day }}',
     '        </md-button>',
     '      </td>',
     '    </tr>',
@@ -195,9 +195,8 @@
     '<div layout="row" class="actions">',
     '  <md-button class="md-raised" ng-click="setToday()" ng-if="isSetToday">{{ staticString.today }}</md-button>',
     '  <span flex></span>',
-    '  <md-button class="md-warn" ng-click="cancel()">{{ staticString.cancel }}</md-button>',
-    '  <span flex="5"></span>',
-    '  <md-button class="md-primary md-raised" ng-click="confirm()">{{ staticString.confirm }}</md-button>',
+    '  <md-button class="md-warn md-raised" ng-click="cancel()">{{ staticString.cancel }}</md-button>',
+    '  <md-button class="md-primary md-raised" ng-click="confirm()" ng-disabled="isDatetimeInvalid()">{{ staticString.confirm }}</md-button>',
     '</div>'
   ].join('');
 
@@ -297,20 +296,22 @@
       $scope.hours = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
       $scope.minutes = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
 
-      $scope.staticString = {};
-      $scope.dtLanguage = $scope.dtLanguage || attr.dtLanguage || 'cn';
-      if($scope.dtLanguage === 'en') {
-        $scope.staticString = STATIC_STRING['en'];
-      } else if($scope.dtLanguage === 'cn') {
-        $scope.staticString = STATIC_STRING['cn'];
-      } else {
-        if(typeof $scope.dtLanguage === 'string') {
+      $scope.staticString = STATIC_STRING['cn'];
+      if(attr.dtLanguage) {
+        $scope.dtLanguage = $scope.dtLanguage || attr.dtLanguage || 'cn';
+        if($scope.dtLanguage === 'en') {
+          $scope.staticString = STATIC_STRING['en'];
+        } else if($scope.dtLanguage === 'cn') {
           $scope.staticString = STATIC_STRING['cn'];
         } else {
-          $scope.staticString = angular.extend({}, STATIC_STRING['cn'], $scope.dtLanguage);
+          if(typeof $scope.dtLanguage === 'string') {
+            $scope.staticString = STATIC_STRING['cn'];
+          } else {
+            $scope.staticString = angular.extend({}, STATIC_STRING['cn'], $scope.dtLanguage);
+          }
         }
       }
-
+      
       $scope.init = function () {
         $scope.maxDate = $scope.max ? moment($scope.max, $scope.format) : undefined;
         $scope.minDate = $scope.min ? moment($scope.min, $scope.format) : undefined;
@@ -363,9 +364,9 @@
         };
 
         if($scope.isDateRange) {
-          setDaysDisabledStatus(result.days, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
+          setDaysDisabledStatus(result, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
         } else if($scope.minDate || $scope.maxDate) {
-          setDaysDisabledStatus(result.days, false, pickerIndex, $scope.minDate, $scope.maxDate);
+          setDaysDisabledStatus(result, false, pickerIndex, $scope.minDate, $scope.maxDate);
         }
 
         return result;
@@ -419,10 +420,10 @@
         if($scope.isDateRange) {
           var picker0Dt = moment($scope.pickers[0].datetime);
           var picker1Dt = moment($scope.pickers[1].datetime);
-          setDaysDisabledStatus($scope.pickers[0].days, true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
-          setDaysDisabledStatus($scope.pickers[1].days, true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
+          setDaysDisabledStatus($scope.pickers[0], true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
+          setDaysDisabledStatus($scope.pickers[1], true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
         } else if($scope.minDate || $scope.maxDate) {
-          setDaysDisabledStatus(picker.days, false, 0, $scope.minDate, $scope.maxDate);
+          setDaysDisabledStatus(picker, false, 0, $scope.minDate, $scope.maxDate);
         }
       };
 
@@ -453,6 +454,10 @@
         if(picker) {
           $scope.setPickerDatetimeInfo(picker, moment());
         }
+      };
+
+      $scope.isDatetimeInvalid = function() {
+        return $scope.pickers[0].isInvalid || ($scope.pickers[1] && $scope.pickers[1].isInvalid); 
       };
 
       $scope = angular.extend($scope, {
@@ -643,7 +648,9 @@
   }
 
   // according to max & min & range status to get whether a day is disabled
-  function setDaysDisabledStatus(days, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
+  function setDaysDisabledStatus(picker, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
+    var days = picker.days;
+    picker.isInvalid = false;
     for(var i = 0; i < days.length; i++) {
       for(var j = 0; j < days[i].length; j++) {
         var daysInfo = days[i][j];
@@ -669,6 +676,11 @@
               daysInfo.isDisabled = true;
             }
           }
+        }
+
+        // check if the picker datetime is disabled
+        if(daysInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === daysInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
+          picker.isInvalid = true;
         }
       }
     }
