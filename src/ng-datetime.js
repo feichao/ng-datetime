@@ -92,7 +92,7 @@
   ].join('');
 
   var TEMPLATE_DATE = [
-    '<div layout="{{ isDiaplayBlock ? \'column\' : \'row\' }}">',
+    '<div layout="{{ ::isDiaplayBlock ? \'column\' : \'row\' }}" layout-align="{{ ::isDiaplayBlock ? \'center start\' : \'start center\' }}">',
     '<table class="date-picker" ng-repeat="picker in pickers">',
     '  <tbody>',
     // years && months
