@@ -3,81 +3,81 @@
 
   var moment = moment || window.moment;
 
-  if (moment && moment.prototype) {
+  if (moment && moment.fn) {
     if (!moment.addSeconds) {
-      moment.prototype.addSeconds = function (num) {
+      moment.fn.addSeconds = function (num) {
         return this.add(num, 'seconds');
       };
     }
 
     if (!moment.addMinutes) {
-      moment.prototype.addMinutes = function (num) {
+      moment.fn.addMinutes = function (num) {
         return this.add(num, 'minutes');
       };
     }
 
     if (!moment.addHours) {
-      moment.prototype.addHours = function (num) {
+      moment.fn.addHours = function (num) {
         return this.add(num, 'hours');
       };
     }
 
     if (!moment.addDays) {
-      moment.prototype.addDays = function (num) {
+      moment.fn.addDays = function (num) {
         return this.add(num, 'days');
       };
     }
 
     if (!moment.addMonths) {
-      moment.prototype.addMonths = function (num) {
+      moment.fn.addMonths = function (num) {
         return this.add(num, 'months');
       };
     }
 
     if (!moment.addYears) {
-      moment.prototype.addYears = function (num) {
+      moment.fn.addYears = function (num) {
         return this.add(num, 'years');
       };
     }
 
     if (!moment.subtractSeconds) {
-      moment.prototype.subtractSeconds = function (num) {
+      moment.fn.subtractSeconds = function (num) {
         return this.subtract(num, 'seconds');
       };
     }
 
     if (!moment.subtractMinutes) {
-      moment.prototype.subtractMinutes = function (num) {
+      moment.fn.subtractMinutes = function (num) {
         return this.subtract(num, 'minutes');
       };
     }
 
     if (!moment.subtractHours) {
-      moment.prototype.subtractHours = function (num) {
+      moment.fn.subtractHours = function (num) {
         return this.subtract(num, 'hours');
       };
     }
 
     if (!moment.subtractDays) {
-      moment.prototype.subtractDays = function (num) {
+      moment.fn.subtractDays = function (num) {
         return this.subtract(num, 'days');
       };
     }
 
     if (!moment.subtractMonths) {
-      moment.prototype.subtractMonths = function (num) {
+      moment.fn.subtractMonths = function (num) {
         return this.subtract(num, 'months');
       };
     }
 
     if (!moment.subtractYears) {
-      moment.prototype.subtractYears = function (num) {
+      moment.fn.subtractYears = function (num) {
         return this.subtract(num, 'years');
       };
     }
 
     if (!moment.diffDays) {
-      moment.prototype.diffDays = function (m) {
+      moment.fn.diffDays = function (m) {
         return this.diff(moment(m), 'days');
       };
     }
@@ -287,7 +287,7 @@
 
   function ngDatetimeCompile(tElement, tAttr) {
     return function ($scope, element, attr) {
-      if (typeof moment !== 'function') {
+      if (typeof moment !== 'function' || !moment.fn) {
         console.log('cant find momentjs lib');
         return;
       }

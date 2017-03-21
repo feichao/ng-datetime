@@ -1,10 +1,9 @@
-# ng-datetime
-
+## ngDatetime
 ## 最全最好用的基于 Angular Material 的日期时间选择控件
 
-## demo-img
+[Demo][1]
 
-![ngDatetime][1]
+### 待更新文档……
 
 
-  [1]: http://o8tapqn1p.bkt.clouddn.com/20180320-ngDatetime.png
+  [1]: http://www.0xfc.cn/article/0/58d1332040149d025b07ceab
