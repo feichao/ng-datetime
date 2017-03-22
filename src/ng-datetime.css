@@ -63,9 +63,7 @@
   background: #efefef;
 }
 
-.date-picker .md-button.normal-day[disabled],
-.date-picker .md-button.normal-day[disabled]:hover {
-  background: transparent;
+.date-picker .md-button[disabled] {
   cursor: not-allowed;
   text-decoration: line-through;
 }

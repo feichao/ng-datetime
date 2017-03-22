@@ -367,6 +367,8 @@
           setDaysDisabledStatus(result, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
         } else if($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(result, false, pickerIndex, $scope.minDate, $scope.maxDate);
+        } else {
+          getDaysClass(result);
         }
 
         return result;
@@ -378,7 +380,6 @@
 
       $scope.setDate = function (picker, dayInfo) {
         $scope.setPickerDatetimeInfo(picker, dayInfo.datetime);
-        dayInfo.dayClass = getDayClass(dayInfo);
       };
 
       $scope.setPickerDatetimeInfo = function(picker, newDt) {
@@ -424,6 +425,8 @@
           setDaysDisabledStatus($scope.pickers[1], true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
         } else if($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(picker, false, 0, $scope.minDate, $scope.maxDate);
+        } else {
+          getDaysClass(picker);
         }
       };
 
@@ -582,17 +585,24 @@
     var datetime = moment(firstDay).addDays(dateIndex);
     var weekday = dayIndex % 7;
 
-    var result = {
+    return {
       datetime: datetime,
       day: datetime.format('DD'),
       isInMonth: isInMonth,
       isWeekEnd: weekday === 0 || weekday === 6,
       isToday: moment().format(dateFormat) === datetime.format(dateFormat),
       isSelected: currentDay.format(dateFormat) === datetime.format(dateFormat),
+      dayClass: '' // calc later
     };
+  }
 
-    result.dayClass = getDayClass(result);
-    return result;
+  function getDaysClass(picker) {
+    var days = picker.days || [];
+    for(var i = 0; i < days.length; i++) {
+      for(var j = 0; j < days[i].length; j++) {
+        days[i][j].dayClass = getDayClass(days[i][j]);
+      }
+    }
   }
 
   /**
@@ -601,7 +611,7 @@
    * @returns {string} class string
    */
   function getDayClass(dayInfo) {
-    var classCollection = ['normal-day'];
+    var classCollection = [];
     if (!dayInfo.isDisabled) {
       classCollection.push('normal-day');
     }
@@ -640,7 +650,6 @@
       for(var j = 0; j < days[i].length; j++) {
         if(days[i][j].day === dd && days[i][j].isInMonth) {
           days[i][j].isSelected = isSelected;
-          days[i][j].dayClass = getDayClass(days[i][j]);
           return;
         }
       }
@@ -653,35 +662,38 @@
     picker.isInvalid = false;
     for(var i = 0; i < days.length; i++) {
       for(var j = 0; j < days[i].length; j++) {
-        var daysInfo = days[i][j];
-        var datetime = daysInfo.datetime;
-        daysInfo.isDisabled = false;
+        var dayInfo = days[i][j];
+        var datetime = dayInfo.datetime;
+        dayInfo.isDisabled = false;
         if(maxDate && datetime.isAfter(maxDate) || minDate && datetime.isBefore(minDate)) {
-          daysInfo.isDisabled = true;
+          dayInfo.isDisabled = true;
         }
 
         if(isDateRange) {
           if(currentPickerIndex === 0 && datetime.isAfter(picker1Dt) || currentPickerIndex === 1 && datetime.isBefore(picker0Dt)) {
-            daysInfo.isDisabled = true;
+            dayInfo.isDisabled = true;
           }
 
           if(minLength > 0) {
             if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) < minLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) < minLength) {
-              daysInfo.isDisabled = true;
+              dayInfo.isDisabled = true;
             }
           }
 
           if(maxLength > 0) {
             if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) > maxLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) > maxLength) {
-              daysInfo.isDisabled = true;
+              dayInfo.isDisabled = true;
             }
           }
         }
 
         // check if the picker datetime is disabled
-        if(daysInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === daysInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
+        if(dayInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === dayInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
           picker.isInvalid = true;
         }
+
+        // get day style after all status determines 
+        dayInfo.dayClass = getDayClass(dayInfo);
       }
     }
   }
