@@ -601,8 +601,8 @@
    * @returns {string} class string
    */
   function getDayClass(dayInfo) {
-    var classCollection = [];
-    if (!dayInfo.isToday && !dayInfo.isWeekEnd && !dayInfo.isSelected) {
+    var classCollection = ['normal-day'];
+    if (!dayInfo.isDisabled) {
       classCollection.push('normal-day');
     }
 
@@ -611,11 +611,11 @@
     } 
     
     if (dayInfo.isToday) {
-      classCollection.push('md-primary');
+      classCollection.push('md-primary today');
     }
 
     if (dayInfo.isSelected) {
-      classCollection.push('md-primary md-raised');
+      classCollection.push('md-primary md-raised selected');
     }
 
     if (!dayInfo.isInMonth) {

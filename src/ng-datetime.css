@@ -59,22 +59,31 @@
   width: 36px;
 }
 
-.date-picker .md-button.normal-day {
-  background: #efefef;
-}
-
 .date-picker .md-button.normal-day:hover {
-  background: #d7d7d7;
+  background: #efefef;
 }
 
 .date-picker .md-button.normal-day[disabled],
 .date-picker .md-button.normal-day[disabled]:hover {
   background: transparent;
   cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.date-picker .md-button.today.selected {
+  border: none;
+}
+
+.date-picker .md-button.today {
+  border: 1px solid;
 }
 
 .date-picker .md-button.not-in-month {
-  opacity: 0.5;
+  opacity: 0.65;
+}
+
+.date-picker .md-button.not-in-month[disabled] {
+  opacity: 1;
 }
 
 .week-header td {
