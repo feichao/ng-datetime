@@ -7,9 +7,11 @@
  
 ### how to use 
  > angular.module('YourApp', ['ngMaterial', 'ngMdIcons', 'ngDatetime'])
+ 
  > attention: 'ngMaterial', 'ngMdIcons' is required !!
  
 after inject ngDatetime, you can use it like below in your template:
+
 ```
 <ng-datetime ...></ng-datetime>
 ```
@@ -48,14 +50,18 @@ function ngDatetimeDirective() {
  - dtType
  > date, time, datetime, date-range, time-range, datetime-range, date-timerange
 
+
  - dtQSelect
  > array contains object like { label: '', value: ''}. label shows to user, value indicates the some seconds ago 
+
 
  - dtConfirm
  > callback when user click confirm btn, params are selected date, startChioce & endChoice when dtType is **-range otherwise chioce
 
+
  - dtLanguage
  > the language that picker is used, default 'cn' (Chinese), another is 'en' (English). Or you can define your own language like this:
+ 
     ```
     language = {
         today: 'Jy',
