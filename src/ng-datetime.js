@@ -118,7 +118,7 @@
     '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.monthNum }}</md-button>',
     '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content">',
     '            <md-menu-item ng-repeat="month in months">',
-    '              <md-button ng-click="setMonth(picker, month)">{{ month }}</md-button>',
+    '              <md-button ng-click="setMonth(picker, month, $event)">{{ month }}</md-button>',
     '            </md-menu-item>',
     '          </md-menu-content>',
     '        </md-menu>',
@@ -154,7 +154,7 @@
     '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.hourNum }}</md-button>',
     '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content hour-menu-content">',
     '            <md-menu-item ng-repeat="hour in hours">',
-    '              <md-button ng-click="setHour(picker, hour)">{{ hour }}</md-button>',
+    '              <md-button ng-click="setHour(picker, hour, $event)">{{ hour }}</md-button>',
     '            </md-menu-item>',
     '          </md-menu-content>',
     '        </md-menu>',
@@ -174,7 +174,7 @@
     '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.minuteNum }}</md-button>',
     '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content minute-menu-content">',
     '            <md-menu-item ng-repeat="minute in minutes">',
-    '              <md-button ng-click="setMinute(picker, minute)">{{ minute }}</md-button>',
+    '              <md-button ng-click="setMinute(picker, minute, $event)">{{ minute }}</md-button>',
     '            </md-menu-item>',
     '          </md-menu-content>',
     '        </md-menu>',
@@ -495,13 +495,16 @@
         addSeconds: function(picker, seconds) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addSeconds(seconds || 1));
         },
-        setMonth: function(picker, month) {
+        setMonth: function(picker, month, $event) {
+          $event.stopPropagation();
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).month(month - 1));
         },
-        setHour: function(picker, hour) {
+        setHour: function(picker, hour, $event) {
+          $event.stopPropagation();
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).hour(hour));
         },
-        setMinute: function(picker, minute) {
+        setMinute: function(picker, minute, $event) {
+          $event.stopPropagation();
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).minute(minute));
         },
         setToday: function() {
