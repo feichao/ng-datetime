@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  //NgDatetimePickerCtrl['$inject'] = ["$scope", "$element", "$attrs", "$window", "$mdUtil", "$mdConstant", "$mdDialog"];
+  //NgDatetimePickerCtrl['$inject'] = ["$scope", "$element", "$attrs", "$window", "$mdUtil", "$mdDialog"];
 
   angular
     .module('ngDatetimePicker', [
@@ -15,7 +15,7 @@
     'start-choice="startChoice"  end-choice="endChoice" ',
     'max={{ctrl.max}} min={{ctrl.min}} ',
     'max-length={{ctrl.maxLength}} min-length={{ctrl.minLength}} ',
-    'dt-confirm="ctrl.save(value)" dt-cancel="ctrl.cancel()" ',
+    'dt-confirm="choice?ctrl.save(choice):ctrl.save(startChoice,endChoice)" dt-cancel="ctrl.cancel()" ',
     'dt-q-select="ctrl.dtQSelect" ',
     'dt-language="ctrl.dtLanguage" ',
     'dt-type={{ctrl.dtType}} ',
@@ -98,7 +98,6 @@
     };
 
     function NgDatetimePickerCompile($element, $attr) {
-      console.log($attr);
       var inputElement = $element[0].querySelector('input');
       if (inputElement) {
         inputElement.style['text-align'] = 'center';
@@ -114,31 +113,22 @@
     /**
      * @ngInject
      */
-    function NgDatetimePickerCtrl($scope, $element, $attrs, $window, $mdUtil, $mdConstant, $mdDialog) {
+    function NgDatetimePickerCtrl($scope, $element, $attrs, $window, $mdUtil, $mdDialog) {
       if (typeof($attrs.inline) != 'undefined') { //判断是否内联显示
-        this.inline = true;
-        this.$window = $window;
-        this.$mdUtil = $mdUtil;
-        this.$mdConstant = $mdConstant;
-        this.documentElement = angular.element(document.documentElement);
-        this.openOnFocus = true; //输入框获取到焦点时打开
-
-        this.isFocused = false;
-        this.isCalendarOpen = false;
-        this.isOpen = false;
-        this.isDisabled = false;
-        this.inputFocusedOnWindowBlur = false;
-        this.switchElement = $element[0].querySelector('.time-picker-switch');
-        this.ngSwitchElement = angular.element(this.switchElement);
-
-        this.calendarPane = $element[0].querySelector('.ng-datetime-inline');
-        //this.attachInteractionListeners();
-
         var ctrl = this;
 
-        ctrl.choice = $scope.choice;
-        ctrl.startChoice = $scope.startChoice;
-        ctrl.endChoice = $scope.endChoice;
+        ctrl.$window = $window;
+        ctrl.$mdUtil = $mdUtil;
+        ctrl.documentElement = angular.element(document.documentElement);
+        ctrl.openOnFocus = true; //输入框获取到焦点时打开
+
+        ctrl.isCalendarOpen = false;
+        ctrl.isOpen = false;
+        ctrl.isDisabled = false;
+        ctrl.inputFocusedOnWindowBlur = false;
+        ctrl.switchElement = $element[0].querySelector('.time-picker-switch');
+        ctrl.calendarPane = $element[0].querySelector('.ng-datetime-inline');
+
         ctrl.dtQSelect = $scope.dtQSelect;
         ctrl.dtLanguage = $scope.dtLanguage;
         ctrl.dtType = $scope.dtType;
@@ -152,17 +142,19 @@
           ctrl.openCalendarPane(event);
         };
 
-        ctrl.save = function(data) {
-          // setTimeout(function() {
-          //   if (!ctrl.choice) {
-          //     $scope.startChoice = ctrl.startChoice;
-          //     $scope.endChoice = ctrl.endChoice;
-          //   } else {
-          //     $scope.choice = ctrl.choice;
-          //   }
-          // }, 50);
+        ctrl.save = function(start, end) {
+          if (!start) {
+            if (typeof($scope.dtConfirm) === 'function') {
+              $scope.dtConfirm({ startChoice: start, endChoice: end });
+            }
+          } else {
+            if (typeof($scope.dtConfirm) === 'function') {
+              $scope.dtConfirm({ choice: start });
+            }
+          }
           ctrl.closeCalendarPane();
         };
+
         ctrl.cancel = function() {
           ctrl.closeCalendarPane();
         };
@@ -281,11 +273,9 @@
           }
         };
       } else {
-        this.inline = false;
-
         // $scope.$watch('choice', function() {
         //   if (typeof($scope.dtConfirm) === 'function') {
-        //     $scope.dtConfirm($scope.choice);
+        //     $scope.dtConfirm({ choice: $scope.choice });
         //   }
         // });
 
@@ -295,7 +285,7 @@
             'start-choice="vm.startChoice"  end-choice="vm.endChoice" ',
             'max={{vm.max}} min={{vm.min}} ',
             'max-length={{vm.maxLength}} min-length={{vm.minLength}} ',
-            'dt-confirm="vm.save(value)" dt-cancel="vm.cancel()" ',
+            'dt-confirm="vm.choice?vm.save(choice):vm.save(startChoice,endChoice)" dt-cancel="vm.cancel()" ',
             'dt-q-select="vm.dtQSelect" ',
             'dt-language="vm.dtLanguage" ',
             'dt-type={{vm.dtType}} ',
@@ -331,8 +321,14 @@
             if (!date.choice) {
               $scope.startChoice = date.startChoice;
               $scope.endChoice = date.endChoice;
+              if (typeof($scope.dtConfirm) === 'function') {
+                $scope.dtConfirm({ startChoice: $scope.startChoice, endChoice: $scope.endChoice });
+              }
             } else {
               $scope.choice = date.choice;
+              if (typeof($scope.dtConfirm) === 'function') {
+                $scope.dtConfirm({ choice: $scope.choice });
+              }
             }
           }, function() {});
         };
@@ -353,14 +349,12 @@
           vm.min = data.min;
           vm.maxLength = data.maxLength;
           vm.minLength = data.minLength;
-          vm.save = function(data) {
-            setTimeout(function() {
-              if (vm.choice) {
-                $mdDialog.hide({ choice: vm.choice });
-              } else {
-                $mdDialog.hide({ startChoice: vm.startChoice, endChoice: vm.endChoice });
-              }
-            }, 50);
+          vm.save = function(start, end) {
+            if (end) {
+              $mdDialog.hide({ startChoice: start, endChoice: end });
+            } else {
+              $mdDialog.hide({ choice: start });
+            }
           };
           vm.cancel = function() {
             $mdDialog.cancel();

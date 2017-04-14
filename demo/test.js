@@ -70,12 +70,11 @@
       };
 
       $scope.confirm = function(a, b) {
-        console.log('Your select: ' + $scope.date);
-        // if (b) {
-        //   console.log('Your select: start is ' + a + ', end is ' + b);
-        // } else {
-        //   console.log('Your select: ' + a);
-        // }
+        if (b) {
+          console.log('Your select: start is ' + a + ', end is ' + b);
+        } else {
+          console.log('Your select: ' + a);
+        }
       }
     });
 })();
