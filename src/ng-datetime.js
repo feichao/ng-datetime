@@ -1,83 +1,83 @@
-(function () {
+(function() {
   'use strict';
 
   var moment = moment || window.moment;
 
   if (moment && moment.fn) {
     if (!moment.addSeconds) {
-      moment.fn.addSeconds = function (num) {
+      moment.fn.addSeconds = function(num) {
         return this.add(num, 'seconds');
       };
     }
 
     if (!moment.addMinutes) {
-      moment.fn.addMinutes = function (num) {
+      moment.fn.addMinutes = function(num) {
         return this.add(num, 'minutes');
       };
     }
 
     if (!moment.addHours) {
-      moment.fn.addHours = function (num) {
+      moment.fn.addHours = function(num) {
         return this.add(num, 'hours');
       };
     }
 
     if (!moment.addDays) {
-      moment.fn.addDays = function (num) {
+      moment.fn.addDays = function(num) {
         return this.add(num, 'days');
       };
     }
 
     if (!moment.addMonths) {
-      moment.fn.addMonths = function (num) {
+      moment.fn.addMonths = function(num) {
         return this.add(num, 'months');
       };
     }
 
     if (!moment.addYears) {
-      moment.fn.addYears = function (num) {
+      moment.fn.addYears = function(num) {
         return this.add(num, 'years');
       };
     }
 
     if (!moment.subtractSeconds) {
-      moment.fn.subtractSeconds = function (num) {
+      moment.fn.subtractSeconds = function(num) {
         return this.subtract(num, 'seconds');
       };
     }
 
     if (!moment.subtractMinutes) {
-      moment.fn.subtractMinutes = function (num) {
+      moment.fn.subtractMinutes = function(num) {
         return this.subtract(num, 'minutes');
       };
     }
 
     if (!moment.subtractHours) {
-      moment.fn.subtractHours = function (num) {
+      moment.fn.subtractHours = function(num) {
         return this.subtract(num, 'hours');
       };
     }
 
     if (!moment.subtractDays) {
-      moment.fn.subtractDays = function (num) {
+      moment.fn.subtractDays = function(num) {
         return this.subtract(num, 'days');
       };
     }
 
     if (!moment.subtractMonths) {
-      moment.fn.subtractMonths = function (num) {
+      moment.fn.subtractMonths = function(num) {
         return this.subtract(num, 'months');
       };
     }
 
     if (!moment.subtractYears) {
-      moment.fn.subtractYears = function (num) {
+      moment.fn.subtractYears = function(num) {
         return this.subtract(num, 'years');
       };
     }
 
     if (!moment.diffDays) {
-      moment.fn.diffDays = function (m) {
+      moment.fn.diffDays = function(m) {
         return this.diff(moment(m), 'days');
       };
     }
@@ -239,6 +239,7 @@
    *  dtType: {@} illustrate current datetime pciker type, detail for DATE_TYPE
    *  dtQSelect: {=} illustrate quick select
    *  dtConfirm: {&} callback when click confirm button
+   *  dtCancel: {&} callback when click cancel button
    *  format: {@} datetime format
    *  startChoice: {=} illustrate start datetime if dtType is **-range 
    *  endChoice: {=} illustrate end datetime if dtType is **-range 
@@ -256,6 +257,7 @@
         dtType: '@',
         dtQSelect: '=',
         dtConfirm: '&',
+        dtCancel: '&',
         format: '@',
 
         // datetime params
@@ -286,36 +288,35 @@
   }
 
   function ngDatetimeCompile(tElement, tAttr) {
-    return function ($scope, element, attr) {
+    return function($scope, element, attr) {
       if (typeof moment !== 'function' || !moment.fn) {
         console.log('cant find momentjs lib');
         return;
       }
 
       $scope.months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
-      $scope.hours = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
-      $scope.minutes = ['00','01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
+      $scope.hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
+      $scope.minutes = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
 
       $scope.staticString = STATIC_STRING['cn'];
-      if(attr.dtLanguage) {
+      if (attr.dtLanguage) {
         $scope.dtLanguage = $scope.dtLanguage || attr.dtLanguage || 'cn';
-        if($scope.dtLanguage === 'en') {
+        if ($scope.dtLanguage === 'en') {
           $scope.staticString = STATIC_STRING['en'];
-        } else if($scope.dtLanguage === 'cn') {
+        } else if ($scope.dtLanguage === 'cn') {
           $scope.staticString = STATIC_STRING['cn'];
         } else {
-          if(typeof $scope.dtLanguage === 'string') {
+          if (typeof $scope.dtLanguage === 'string') {
             $scope.staticString = STATIC_STRING['cn'];
           } else {
             $scope.staticString = angular.extend({}, STATIC_STRING['cn'], $scope.dtLanguage);
           }
         }
       }
-      
-      $scope.init = function () {
+
+      $scope.init = function() {
         $scope.maxDate = $scope.max ? moment($scope.max, $scope.format) : undefined;
         $scope.minDate = $scope.min ? moment($scope.min, $scope.format) : undefined;
-
         switch ($scope.dtType) {
           case DATE_TYPE.DATE:
           default:
@@ -363,9 +364,9 @@
           minuteNum: mDatetime.format('mm')
         };
 
-        if($scope.isDateRange) {
+        if ($scope.isDateRange) {
           setDaysDisabledStatus(result, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
-        } else if($scope.minDate || $scope.maxDate) {
+        } else if ($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(result, false, pickerIndex, $scope.minDate, $scope.maxDate);
         } else {
           getDaysClass(result);
@@ -378,7 +379,7 @@
       $scope.isSetToday = $scope.dtType === DATE_TYPE.DATE || $scope.dtType === DATE_TYPE.DATETIME || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
       $scope.isDiaplayBlock = $scope.dtType === DATE_TYPE.TIME_RANGE || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
 
-      $scope.setDate = function (picker, dayInfo) {
+      $scope.setDate = function(picker, dayInfo) {
         $scope.setPickerDatetimeInfo(picker, dayInfo.datetime);
       };
 
@@ -394,7 +395,7 @@
         if (pMoment.format('YYYY') !== newDt.format('YYYY') || pMoment.format('MM') !== newDt.format('MM')) {
           picker.days = calcDays($scope, newDt);
         } else if (pMoment.format('DD') !== newDt.format('DD')) {
-          if($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
+          if ($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
             unSelectDay(picker0, pMoment);
             selectDay(picker0, newDt);
           } else {
@@ -402,8 +403,8 @@
             selectDay(picker, newDt);
           }
         }
-        
-        if($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
+
+        if ($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
           picker0.yearNum = picker1.yearNum = newDt.format('YYYY');
           picker0.monthNum = picker1.monthNum = newDt.format('MM');
           picker0.datetime = newDt.format(DATE_DEFAULT_FORMAT) + ' ' + moment(picker0.datetime).format(TIME_DEFAULT_FORMAT);
@@ -418,12 +419,12 @@
         picker.minuteNum = newDt.format('mm');
 
         // until picker.datetime is assign
-        if($scope.isDateRange) {
+        if ($scope.isDateRange) {
           var picker0Dt = moment($scope.pickers[0].datetime);
           var picker1Dt = moment($scope.pickers[1].datetime);
           setDaysDisabledStatus($scope.pickers[0], true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
           setDaysDisabledStatus($scope.pickers[1], true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
-        } else if($scope.minDate || $scope.maxDate) {
+        } else if ($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(picker, false, 0, $scope.minDate, $scope.maxDate);
         } else {
           getDaysClass(picker);
@@ -433,16 +434,16 @@
       $scope.qSelect = function(seconds) {
         var dtType = $scope.dtType;
         var oneDaySeconds = 24 * 60 * 60;
-        if((dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATE_RANGE) && seconds < oneDaySeconds) {
+        if ((dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATE_RANGE) && seconds < oneDaySeconds) {
           return;
         }
 
-        if((dtType === DATE_TYPE.TIME || dtType === DATE_TYPE.TIME_RANGE) && seconds > oneDaySeconds) {
+        if ((dtType === DATE_TYPE.TIME || dtType === DATE_TYPE.TIME_RANGE) && seconds > oneDaySeconds) {
           return;
         }
 
         var picker;
-        if(dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
+        if (dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
           picker = $scope.pickers[0];
           $scope._setToday(picker);
           $scope.minusSeconds(picker, seconds);
@@ -454,44 +455,44 @@
       };
 
       $scope._setToday = function(picker) {
-        if(picker) {
+        if (picker) {
           $scope.setPickerDatetimeInfo(picker, moment());
         }
       };
 
       $scope.isDatetimeInvalid = function() {
-        return $scope.pickers[0].isInvalid || ($scope.pickers[1] && $scope.pickers[1].isInvalid); 
+        return $scope.pickers[0].isInvalid || ($scope.pickers[1] && $scope.pickers[1].isInvalid);
       };
 
       $scope = angular.extend($scope, {
-        minusYear: function (picker) {
+        minusYear: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractYears(1));
         },
-        addYear: function (picker) {
+        addYear: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addYears(1));
         },
-        minusMonth: function (picker) {
+        minusMonth: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractMonths(1));
         },
-        addMonth: function (picker) {
+        addMonth: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addMonths(1));
         },
-        minusHour: function (picker) {
+        minusHour: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractHours(1));
         },
-        addHour: function (picker) {
+        addHour: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addHours(1));
         },
-        minusMinute: function (picker) {
+        minusMinute: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractMinutes(1));
         },
-        addMinute: function (picker) {
+        addMinute: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addMinutes(1));
         },
-        minusSeconds: function (picker, seconds) {
+        minusSeconds: function(picker, seconds) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractSeconds(seconds || 1));
         },
-        addSeconds: function (picker, seconds) {
+        addSeconds: function(picker, seconds) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addSeconds(seconds || 1));
         },
         setMonth: function(picker, month) {
@@ -507,13 +508,15 @@
           $scope._setToday($scope.pickers[0]);
         },
         cancel: function() {
-
+          if (typeof $scope.dtCancel === 'function') {
+            $scope.dtCancel();
+          }
         },
         confirm: function() {
           var picker0 = $scope.pickers[0];
           var picker1 = $scope.pickers[1];
-          if(typeof $scope.dtConfirm === 'function') {
-            if(picker0 && picker1) {
+          if (typeof $scope.dtConfirm === 'function') {
+            if (picker0 && picker1) {
               $scope.startChoice = moment(picker0.datetime).format($scope.format);
               $scope.endChoice = moment(picker1.datetime).format($scope.format);
               $scope.dtConfirm({ startChoice: $scope.startChoice, endChoice: $scope.endChoice });
@@ -524,7 +527,7 @@
           }
         }
       });
-      
+
       $scope.init();
     };
   }
@@ -598,8 +601,8 @@
 
   function getDaysClass(picker) {
     var days = picker.days || [];
-    for(var i = 0; i < days.length; i++) {
-      for(var j = 0; j < days[i].length; j++) {
+    for (var i = 0; i < days.length; i++) {
+      for (var j = 0; j < days[i].length; j++) {
         days[i][j].dayClass = getDayClass(days[i][j]);
       }
     }
@@ -618,8 +621,8 @@
 
     if (dayInfo.isWeekEnd && !dayInfo.isToday) {
       classCollection.push('md-warn');
-    } 
-    
+    }
+
     if (dayInfo.isToday) {
       classCollection.push('md-primary today');
     }
@@ -646,9 +649,9 @@
   function toggleSelect(picker, dayM, isSelected) {
     var dd = dayM.format('DD');
     var days = picker && picker.days || [];
-    for(var i = 0; i < days.length; i++) {
-      for(var j = 0; j < days[i].length; j++) {
-        if(days[i][j].day === dd && days[i][j].isInMonth) {
+    for (var i = 0; i < days.length; i++) {
+      for (var j = 0; j < days[i].length; j++) {
+        if (days[i][j].day === dd && days[i][j].isInMonth) {
           days[i][j].isSelected = isSelected;
           return;
         }
@@ -660,35 +663,35 @@
   function setDaysDisabledStatus(picker, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
     var days = picker.days;
     picker.isInvalid = false;
-    for(var i = 0; i < days.length; i++) {
-      for(var j = 0; j < days[i].length; j++) {
+    for (var i = 0; i < days.length; i++) {
+      for (var j = 0; j < days[i].length; j++) {
         var dayInfo = days[i][j];
         var datetime = dayInfo.datetime;
         dayInfo.isDisabled = false;
-        if(maxDate && datetime.isAfter(maxDate) || minDate && datetime.isBefore(minDate)) {
+        if (maxDate && datetime.isAfter(maxDate) || minDate && datetime.isBefore(minDate)) {
           dayInfo.isDisabled = true;
         }
 
-        if(isDateRange) {
-          if(currentPickerIndex === 0 && datetime.isAfter(picker1Dt) || currentPickerIndex === 1 && datetime.isBefore(picker0Dt)) {
+        if (isDateRange) {
+          if (currentPickerIndex === 0 && datetime.isAfter(picker1Dt) || currentPickerIndex === 1 && datetime.isBefore(picker0Dt)) {
             dayInfo.isDisabled = true;
           }
 
-          if(minLength > 0) {
-            if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) < minLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) < minLength) {
+          if (minLength > 0) {
+            if (currentPickerIndex === 0 && picker1Dt.diffDays(datetime) < minLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) < minLength) {
               dayInfo.isDisabled = true;
             }
           }
 
-          if(maxLength > 0) {
-            if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) > maxLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) > maxLength) {
+          if (maxLength > 0) {
+            if (currentPickerIndex === 0 && picker1Dt.diffDays(datetime) > maxLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) > maxLength) {
               dayInfo.isDisabled = true;
             }
           }
         }
 
         // check if the picker datetime is disabled
-        if(dayInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === dayInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
+        if (dayInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === dayInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
           picker.isInvalid = true;
         }
 
