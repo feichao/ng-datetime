@@ -1,15 +1,11 @@
 (function() {
   'use strict';
 
-  //NgDatetimePickerCtrl['$inject'] = ["$scope", "$element", "$attrs", "$window", "$mdUtil", "$mdDialog"];
-
   angular
     .module('ngDatetimePicker', [
       'ngDatetime'
     ])
     .directive('ngDatetimePicker', NgDatetimePicker);
-
-
 
   var NG_DATETIME_TEMP = ['<ng-datetime choice="choice" ',
     'start-choice="startChoice"  end-choice="endChoice" ',
@@ -19,7 +15,6 @@
     'dt-q-select="ctrl.dtQSelect" ',
     'dt-language="ctrl.dtLanguage" ',
     'dt-type={{ctrl.dtType}} ',
-    // 'format={{ctrl.format}} ',
     'class="ng-datetime-inline" ',
     'ng-show="ctrl.isCalendarOpen">',
     '</ng-datetime>'
@@ -132,7 +127,6 @@
         ctrl.dtQSelect = $scope.dtQSelect;
         ctrl.dtLanguage = $scope.dtLanguage;
         ctrl.dtType = $scope.dtType;
-        // ctrl.format = $scope.format;
         ctrl.max = $scope.max;
         ctrl.min = $scope.min;
         ctrl.maxLength = $scope.maxLength;
@@ -143,7 +137,7 @@
         };
 
         ctrl.save = function(start, end) {
-          if (!start) {
+          if (end) {
             if (typeof($scope.dtConfirm) === 'function') {
               $scope.dtConfirm({ startChoice: start, endChoice: end });
             }
@@ -231,31 +225,6 @@
           var paneTop = elementRect.top - bodyRect.top - this.topMargin + elementRect.height;
           var paneLeft = elementRect.left - bodyRect.left - this.leftMargin;
 
-          // var viewportTop = (bodyRect.top < 0 && document.body.scrollTop == 0) ?
-          //   -bodyRect.top :
-          //   document.body.scrollTop;
-
-          // var viewportLeft = (bodyRect.left < 0 && document.body.scrollLeft == 0) ?
-          //   -bodyRect.left :
-          //   document.body.scrollLeft;
-
-          // var viewportBottom = viewportTop + this.$window.innerHeight;
-          // var viewportRight = viewportLeft + this.$window.innerWidth;
-
-          // if (paneLeft + CALENDAR_PANE_WIDTH > viewportRight) {
-          //   if (viewportRight - CALENDAR_PANE_WIDTH > 0) {
-          //     paneLeft = viewportRight - CALENDAR_PANE_WIDTH;
-          //   } else {
-          //     paneLeft = viewportLeft;
-          //     var scale = this.$window.innerWidth / CALENDAR_PANE_WIDTH;
-          //     calendarPane.style.transform = 'scale(' + scale + ')';
-          //   }
-          // }
-
-          // if (paneTop + CALENDAR_PANE_HEIGHT > viewportBottom &&
-          //   viewportBottom - CALENDAR_PANE_HEIGHT > viewportTop) {
-          //   paneTop = viewportBottom - CALENDAR_PANE_HEIGHT;
-          // }
           calendarPane.style.display = 'block';
           calendarPane.style.position = "absolute";
           calendarPane.style.left = paneLeft + 'px';
@@ -273,12 +242,6 @@
           }
         };
       } else {
-        // $scope.$watch('choice', function() {
-        //   if (typeof($scope.dtConfirm) === 'function') {
-        //     $scope.dtConfirm({ choice: $scope.choice });
-        //   }
-        // });
-
         $scope.showDatatimeimePickDialog = function(ev) {
           var template = ['<md-dialog class="no-padding" aria-label="日期时间选择">',
             '<ng-datetime choice="vm.choice" ',
@@ -289,7 +252,6 @@
             'dt-q-select="vm.dtQSelect" ',
             'dt-language="vm.dtLanguage" ',
             'dt-type={{vm.dtType}} ',
-            //'format={{vm.format}}>',
             '</ng-datetime>',
             '</md-dialog>'
           ].join('');
@@ -312,7 +274,6 @@
                   endChoice: $scope.endChoice,
                   dtQSelect: $scope.dtQSelect,
                   dtLanguage: $scope.dtLanguage,
-                  //format: $scope.format,
                   dtType: $scope.dtType || 'date'
                 };
               }
@@ -344,7 +305,6 @@
           vm.dtQSelect = data.dtQSelect;
           vm.dtLanguage = data.dtLanguage;
           vm.dtType = data.dtType;
-          //vm.format = data.format;
           vm.max = data.max;
           vm.min = data.min;
           vm.maxLength = data.maxLength;
