@@ -365,9 +365,9 @@
         };
 
         if ($scope.isDateRange) {
-          setDaysDisabledStatus(result, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
+          setDaysDisabledStatus(result, $scope.format, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
         } else if ($scope.minDate || $scope.maxDate) {
-          setDaysDisabledStatus(result, false, pickerIndex, $scope.minDate, $scope.maxDate);
+          setDaysDisabledStatus(result, $scope.format, false, pickerIndex, $scope.minDate, $scope.maxDate);
         } else {
           getDaysClass(result);
         }
@@ -375,6 +375,7 @@
         return result;
       };
 
+      $scope.isRange = /range/.test($scope.dtType);
       $scope.isDateRange = $scope.dtType === DATE_TYPE.DATE_RANGE || $scope.dtType === DATE_TYPE.DATETIME_RANGE;
       $scope.isSetToday = $scope.dtType === DATE_TYPE.DATE || $scope.dtType === DATE_TYPE.DATETIME || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
       $scope.isDiaplayBlock = $scope.dtType === DATE_TYPE.TIME_RANGE || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
@@ -420,18 +421,24 @@
 
         // until picker.datetime is assign
         if ($scope.isDateRange) {
-          var picker0Dt = moment($scope.pickers[0].datetime);
-          var picker1Dt = moment($scope.pickers[1].datetime);
-          setDaysDisabledStatus($scope.pickers[0], true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
-          setDaysDisabledStatus($scope.pickers[1], true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
+          var picker0Dt = moment($scope.pickers[0].datetime, $scope.format);
+          var picker1Dt = moment($scope.pickers[1].datetime, $scope.format);
+          setDaysDisabledStatus($scope.pickers[0], $scope.format, true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
+          setDaysDisabledStatus($scope.pickers[1], $scope.format, true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
         } else if ($scope.minDate || $scope.maxDate) {
-          setDaysDisabledStatus(picker, false, 0, $scope.minDate, $scope.maxDate);
+          setDaysDisabledStatus(picker, $scope.format, false, 0, $scope.minDate, $scope.maxDate);
         } else {
           getDaysClass(picker);
         }
       };
 
-      $scope.qSelect = function(seconds) {
+      $scope.qSelect = function(seconds, picker) {
+        if(angular.isArray(seconds) && $scope.isRange) {
+          $scope.qSelect(seconds[0], $scope.pickers[0]);
+          $scope.qSelect(seconds[1], $scope.pickers[1]);
+          return;
+        }
+
         var dtType = $scope.dtType;
         var oneDaySeconds = 24 * 60 * 60;
         if ((dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATE_RANGE) && seconds < oneDaySeconds) {
@@ -442,15 +449,23 @@
           return;
         }
 
-        var picker;
-        if (dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
-          picker = $scope.pickers[0];
+        if(picker) {
           $scope._setToday(picker);
           $scope.minusSeconds(picker, seconds);
+          return;
+        }
+
+        var pickerTmp;
+        if (dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
+          pickerTmp = $scope.pickers[0];
+          $scope._setToday(pickerTmp);
+          $scope.minusSeconds(pickerTmp, seconds);
         } else { // range
           $scope._setToday($scope.pickers[0]);
           $scope._setToday($scope.pickers[1]);
           $scope.minusSeconds($scope.pickers[0], seconds);
+
+          console.log($scope.pickers);
         }
       };
 
@@ -663,13 +678,13 @@
   }
 
   // according to max & min & range status to get whether a day is disabled
-  function setDaysDisabledStatus(picker, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
+  function setDaysDisabledStatus(picker, format, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
     var days = picker.days;
     picker.isInvalid = false;
     for (var i = 0; i < days.length; i++) {
       for (var j = 0; j < days[i].length; j++) {
         var dayInfo = days[i][j];
-        var datetime = dayInfo.datetime;
+        var datetime = moment(dayInfo.datetime.format(format));
         dayInfo.isDisabled = false;
         if (maxDate && datetime.isAfter(maxDate) || minDate && datetime.isBefore(minDate)) {
           dayInfo.isDisabled = true;
