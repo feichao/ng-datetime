@@ -7,6 +7,8 @@
     ])
     .directive('ngDatetimePicker', NgDatetimePicker);
 
+
+
   var NG_DATETIME_TEMP = ['<ng-datetime choice="choice" ',
     'start-choice="startChoice"  end-choice="endChoice" ',
     'max={{ctrl.max}} min={{ctrl.min}} ',
@@ -138,10 +140,13 @@
 
         ctrl.save = function(start, end) {
           if (end) {
+            $scope.startChoice = start;
+            $scope.endChoice = end;
             if (typeof($scope.dtConfirm) === 'function') {
               $scope.dtConfirm({ startChoice: start, endChoice: end });
             }
           } else {
+            $scope.choice = start;
             if (typeof($scope.dtConfirm) === 'function') {
               $scope.dtConfirm({ choice: start });
             }
@@ -222,7 +227,7 @@
           this.topMargin = 0;
           this.leftMargin = 0;
 
-          var paneTop = elementRect.top - bodyRect.top - this.topMargin + elementRect.height;
+          var paneTop = elementRect.top - bodyRect.top - this.topMargin + elementRect.height + 3;
           var paneLeft = elementRect.left - bodyRect.left - this.leftMargin;
 
           calendarPane.style.display = 'block';
