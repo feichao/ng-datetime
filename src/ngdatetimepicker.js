@@ -58,13 +58,13 @@
             if ($attr.choice) {
               templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{choice}}</md-button>';
             } else {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}} ~ {{endChoice}}</md-button>';
+              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}}   ~   {{endChoice}}</md-button>';
             }
           } else {
             if ($attr.choice) {
               templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{choice}}"></md-input-container>';
             } else {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}} ~ {{endChoice}}"></md-input-container>';
+              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}}   ~   {{endChoice}}"></md-input-container>';
             }
           }
         } else {
@@ -72,13 +72,13 @@
             if ($attr.choice) {
               templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{choice}}</md-button>';
             } else {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{startChoice}} ~ {{endChoice}}</md-button>';
+              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{startChoice}}   ~   {{endChoice}}</md-button>';
             }
           } else {
             if ($attr.choice) {
               templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{choice}}"></md-input-container>';
             } else {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{startChoice}} ~ {{endChoice}}"></md-input-container>';
+              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{startChoice}}   ~   {{endChoice}}"></md-input-container>';
             }
           }
         }
@@ -164,10 +164,11 @@
 
         ctrl.handleBodyClick = function(event) {
           if (ctrl.isCalendarOpen) {
+            //var isInCalendar = this.$mdUtil.getClosest(event.target, 'ng-datetime');
+
             var clickX = event.clientX;
             var clickY = event.clientY;
             var elementRect = this.calendarPane.getBoundingClientRect();
-            //var isInCalendar = this.$mdUtil.getClosest(event.target, 'ng-datetime');
             var isInCalendar = false;
             if (clickX > elementRect.left && clickX < elementRect.right &&
               clickY > elementRect.top && clickY < elementRect.bottom) {
@@ -242,7 +243,7 @@
           calendarPane.style.position = "absolute";
           calendarPane.style.left = paneLeft + 'px';
           calendarPane.style.top = paneTop + 'px';
-          calendarPane.style.zIndex = "100";
+          calendarPane.style.zIndex = "90";
           document.body.appendChild(calendarPane);
         };
 
