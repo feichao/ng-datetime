@@ -7,8 +7,6 @@
     ])
     .directive('ngDatetimePicker', NgDatetimePicker);
 
-
-
   var NG_DATETIME_TEMP = ['<ng-datetime choice="choice" ',
     'start-choice="startChoice"  end-choice="endChoice" ',
     'max={{ctrl.max}} min={{ctrl.min}} ',
@@ -58,13 +56,13 @@
             if ($attr.choice) {
               templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{choice}}</md-button>';
             } else {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}}   ~   {{endChoice}}</md-button>';
+              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}</md-button>';
             }
           } else {
             if ($attr.choice) {
               templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{choice}}"></md-input-container>';
             } else {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}}   ~   {{endChoice}}"></md-input-container>';
+              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}"></md-input-container>';
             }
           }
         } else {
@@ -72,13 +70,13 @@
             if ($attr.choice) {
               templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{choice}}</md-button>';
             } else {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{startChoice}}   ~   {{endChoice}}</md-button>';
+              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}</md-button>';
             }
           } else {
             if ($attr.choice) {
               templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{choice}}"></md-input-container>';
             } else {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{startChoice}}   ~   {{endChoice}}"></md-input-container>';
+              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}"></md-input-container>';
             }
           }
         }
@@ -223,8 +221,8 @@
         };
 
         ctrl.attachCalendarPane = function() {
-          var CALENDAR_PANE_WIDTH = 360;
-          var CALENDAR_PANE_HEIGHT = 368;
+          var CALENDAR_PANE_MIN_WIDTH = 300;
+          var CALENDAR_PANE_MIN_HEIGHT = 350;
           var calendarPane = this.calendarPane;
           var body = document.body;
 
@@ -233,16 +231,53 @@
           var elementRect = this.switchElement.getBoundingClientRect();
           var bodyRect = body.getBoundingClientRect();
 
-          this.topMargin = 0;
+          this.topMargin = 3;
+          this.bottomMargin = 3;
           this.leftMargin = 0;
+          this.rightMargin = 0;
 
-          var paneTop = elementRect.top - bodyRect.top - this.topMargin + elementRect.height + 3;
-          var paneLeft = elementRect.left - bodyRect.left - this.leftMargin;
+          var paneTop = elementRect.top - bodyRect.top + elementRect.height + this.topMargin; //上边停靠
+          var paneLeft = elementRect.left - bodyRect.left + this.leftMargin; //左边对齐
+          var panelBottom = bodyRect.bottom - elementRect.top + this.bottomMargin; //底边停靠 
+          var paneRight = bodyRect.right - elementRect.right + this.rightMargin; //右边对齐
+
+          var alignX = 'left';
+          var alignY = 'top';
+
+          var viewportTop = (bodyRect.top < 0 && document.body.scrollTop == 0) ?
+            -bodyRect.top :
+            document.body.scrollTop;
+
+          var viewportLeft = (bodyRect.left < 0 && document.body.scrollLeft == 0) ?
+            -bodyRect.left :
+            document.body.scrollLeft;
+
+          var viewportBottom = viewportTop + this.$window.innerHeight;
+          var viewportRight = viewportLeft + this.$window.innerWidth;
+
+          if ((paneLeft + CALENDAR_PANE_MIN_WIDTH) > viewportRight &&
+            (bodyRect.right - paneRight - CALENDAR_PANE_MIN_WIDTH) > 0) {
+            alignX = 'right';
+          }
+
+          if ((paneTop + CALENDAR_PANE_MIN_HEIGHT) > viewportBottom &&
+            (bodyRect.bottom - panelBottom - CALENDAR_PANE_MIN_HEIGHT) > 0) {
+            alignY = 'bottom';
+          }
 
           calendarPane.style.display = 'block';
           calendarPane.style.position = "absolute";
-          calendarPane.style.left = paneLeft + 'px';
-          calendarPane.style.top = paneTop + 'px';
+          if (alignX === 'left') {
+            calendarPane.style.left = paneLeft + 'px';
+          } else {
+            calendarPane.style.right = paneRight + 'px';
+          }
+          if (alignY === 'top') {
+            calendarPane.style.top = paneTop + 'px';
+          } else {
+            calendarPane.style.bottom = panelBottom + 'px';
+          }
+
           calendarPane.style.zIndex = "90";
           document.body.appendChild(calendarPane);
         };
