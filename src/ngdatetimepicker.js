@@ -44,50 +44,38 @@
         maxLength: '@',
         minLength: '@',
 
-        // inline mode
+        // dialog mode
+        //dialog   //设置是否为对话框显示模式,默认为内联显示模式
+
+        //input style
+        //inputstyle //设置是否为输入框样式,默认为按钮样式
 
         // language
         dtLanguage: '='
       },
       template: function($element, $attr) {
         var templateHtml = '';
-        if (typeof($attr.inline) != 'undefined') {
-          if (typeof($attr.inputmode) == 'undefined') {
-            if ($attr.choice) {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{choice}}</md-button>';
-            } else {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}</md-button>';
-            }
+        if (typeof($attr.inputstyle) == 'undefined') {
+          if ($attr.choice) {
+            templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{choice}}</md-button>';
           } else {
-            if ($attr.choice) {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{choice}}"></md-input-container>';
-            } else {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}"></md-input-container>';
-            }
+            templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}</md-button>';
           }
         } else {
-          if (typeof($attr.inputmode) == 'undefined') {
-            if ($attr.choice) {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{choice}}</md-button>';
-            } else {
-              templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="showDatatimeimePickDialog($event)">{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}</md-button>';
-            }
+          if ($attr.choice) {
+            templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{choice}}"></md-input-container>';
           } else {
-            if ($attr.choice) {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{choice}}"></md-input-container>';
-            } else {
-              templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="showDatatimeimePickDialog($event)" value="{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}"></md-input-container>';
-            }
+            templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}"></md-input-container>';
           }
         }
 
-        if (typeof($attr.inline) != 'undefined') {
+        if (typeof($attr.dialog) == 'undefined') {
           templateHtml += NG_DATETIME_TEMP;
         }
 
         return templateHtml;
       },
-      controller: NgDatetimePickerCtrl,
+      controller: ['$scope', '$element', '$attrs', '$window', '$mdUtil', '$mdDialog', NgDatetimePickerCtrl],
       controllerAs: 'ctrl',
       compile: NgDatetimePickerCompile
     };
@@ -95,6 +83,7 @@
     function NgDatetimePickerCompile($element, $attr) {
       var inputElement = $element[0].querySelector('input');
       if (inputElement) {
+        //input style时调整显示宽度和位置
         inputElement.style.textAlign = 'center';
         inputElement.style.position = 'relative';
         inputElement.style.top = '12px';
@@ -111,7 +100,7 @@
      * @ngInject
      */
     function NgDatetimePickerCtrl($scope, $element, $attrs, $window, $mdUtil, $mdDialog) {
-      if (typeof($attrs.inline) != 'undefined') { //判断是否内联显示
+      if (typeof($attrs.dialog) == 'undefined') { //判断是否对话框显示模式
         var ctrl = this;
 
         ctrl.$window = $window;
@@ -133,10 +122,6 @@
         ctrl.min = $scope.min;
         ctrl.maxLength = $scope.maxLength;
         ctrl.minLength = $scope.minLength;
-
-        ctrl.open = function(event) {
-          ctrl.openCalendarPane(event);
-        };
 
         ctrl.save = function(start, end) {
           if (end) {
@@ -224,6 +209,7 @@
         };
 
         ctrl.attachCalendarPane = function() {
+          //计算内联显示时的显示位置
           var CALENDAR_PANE_MIN_WIDTH = 300;
           var CALENDAR_PANE_MIN_HEIGHT = 350;
           var calendarPane = ctrl.calendarPane;
@@ -240,7 +226,7 @@
           var rightMargin = 0;
           var heightBias = 0;
 
-          if (typeof($attrs.inputmode) != 'undefined') {
+          if (typeof($attrs.inputstyle) != 'undefined') {
             heightBias = 12;
           }
 
@@ -304,6 +290,7 @@
           }
         };
       } else {
+        //弹出对话框显示模式
         $scope.showDatatimeimePickDialog = function(ev) {
           var template = ['<md-dialog class="no-padding" aria-label="日期时间选择">',
             '<ng-datetime choice="vm.choice" ',
@@ -383,6 +370,14 @@
           };
         }
       }
+
+      this.open = function(event) {
+        if (typeof($attrs.dialog) != 'undefined') { //判断是否对话框模式显示
+          $scope.showDatatimeimePickDialog(event);
+        } else {
+          this.openCalendarPane(event);
+        }
+      };
     }
   }
 })();
