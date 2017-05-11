@@ -95,9 +95,11 @@
     function NgDatetimePickerCompile($element, $attr) {
       var inputElement = $element[0].querySelector('input');
       if (inputElement) {
-        inputElement.style['text-align'] = 'center';
-        if ($attr['startChoice'] && $attr['endChoice']) {
-          inputElement.style['min-width'] = '350px';
+        inputElement.style.textAlign = 'center';
+        inputElement.style.position = 'relative';
+        inputElement.style.top = '12px';
+        if ($attr.startChoice && $attr.endChoice) {
+          inputElement.style.minWidth = '350px';
         }
       }
       return function($scope, $element, $attr) {
@@ -157,7 +159,7 @@
         };
 
         ctrl.handleWindowBlur = function() {
-          this.inputFocusedOnWindowBlur = (document.activeElement === this.switchElement);
+          ctrl.inputFocusedOnWindowBlur = (document.activeElement === ctrl.switchElement);
         };
 
         ctrl.handleBodyClick = function(event) {
@@ -166,38 +168,39 @@
 
             var clickX = event.clientX;
             var clickY = event.clientY;
-            var elementRect = this.calendarPane.getBoundingClientRect();
+            var elementRect = ctrl.calendarPane.getBoundingClientRect();
             var isInCalendar = false;
+
             if (clickX > elementRect.left && clickX < elementRect.right &&
               clickY > elementRect.top && clickY < elementRect.bottom) {
               isInCalendar = true;
             }
             if (!isInCalendar) {
-              this.closeCalendarPane();
+              ctrl.closeCalendarPane();
             }
           }
         };
 
-        this.bodyClickHandler = angular.bind(this, this.handleBodyClick);
-        this.windowBlurHandler = angular.bind(this, this.handleWindowBlur);
+        ctrl.bodyClickHandler = angular.bind(this, ctrl.handleBodyClick);
+        ctrl.windowBlurHandler = angular.bind(this, ctrl.handleWindowBlur);
 
         ctrl.openCalendarPane = function(event) {
-          if (!this.isCalendarOpen && !this.isDisabled && !this.inputFocusedOnWindowBlur) {
-            this.isCalendarOpen = true;
-            this.isOpen = true;
-            this.calendarPaneOpenedFrom = event.target;
+          if (!ctrl.isCalendarOpen && !ctrl.isDisabled && !ctrl.inputFocusedOnWindowBlur) {
+            ctrl.isCalendarOpen = true;
+            ctrl.isOpen = true;
+            ctrl.calendarPaneOpenedFrom = event.target;
 
-            this.attachCalendarPane();
+            ctrl.attachCalendarPane();
 
             var self = this;
-            this.$mdUtil.nextTick(function() {
+            ctrl.$mdUtil.nextTick(function() {
               self.documentElement.on('click touchstart', self.bodyClickHandler);
             }, false);
           }
         };
 
         ctrl.closeCalendarPane = function() {
-          if (this.isCalendarOpen) {
+          if (ctrl.isCalendarOpen) {
             var self = this;
 
             self.detachCalendarPane();
@@ -223,23 +226,28 @@
         ctrl.attachCalendarPane = function() {
           var CALENDAR_PANE_MIN_WIDTH = 300;
           var CALENDAR_PANE_MIN_HEIGHT = 350;
-          var calendarPane = this.calendarPane;
+          var calendarPane = ctrl.calendarPane;
           var body = document.body;
 
           calendarPane.style.transform = '';
 
-          var elementRect = this.switchElement.getBoundingClientRect();
+          var elementRect = ctrl.switchElement.getBoundingClientRect();
           var bodyRect = body.getBoundingClientRect();
 
-          this.topMargin = 3;
-          this.bottomMargin = 3;
-          this.leftMargin = 0;
-          this.rightMargin = 0;
+          var topMargin = 3;
+          var bottomMargin = 3;
+          var leftMargin = 0;
+          var rightMargin = 0;
+          var heightBias = 0;
 
-          var paneTop = elementRect.top - bodyRect.top + elementRect.height + this.topMargin; //上边停靠
-          var paneLeft = elementRect.left - bodyRect.left + this.leftMargin; //左边对齐
-          var panelBottom = bodyRect.bottom - elementRect.top + this.bottomMargin; //底边停靠 
-          var paneRight = bodyRect.right - elementRect.right + this.rightMargin; //右边对齐
+          if (typeof($attrs.inputmode) != 'undefined') {
+            heightBias = 12;
+          }
+
+          var paneTop = elementRect.top - bodyRect.top + elementRect.height + topMargin - heightBias; //上边停靠
+          var paneLeft = elementRect.left - bodyRect.left + leftMargin; //左边对齐
+          var panelBottom = bodyRect.bottom - elementRect.top + bottomMargin - heightBias; //底边停靠 
+          var paneRight = bodyRect.right - elementRect.right + rightMargin; //右边对齐
 
           var alignX = 'left';
           var alignY = 'top';
@@ -252,15 +260,15 @@
             -bodyRect.left :
             document.body.scrollLeft;
 
-          var viewportBottom = viewportTop + this.$window.innerHeight;
-          var viewportRight = viewportLeft + this.$window.innerWidth;
+          var viewportBottom = viewportTop + ctrl.$window.innerHeight;
+          var viewportRight = viewportLeft + ctrl.$window.innerWidth;
 
-          if ((paneLeft + CALENDAR_PANE_MIN_WIDTH) > viewportRight &&
+          if ((paneLeft + bodyRect.left + viewportLeft + CALENDAR_PANE_MIN_WIDTH) > viewportRight &&
             (bodyRect.right - paneRight - CALENDAR_PANE_MIN_WIDTH) > 0) {
             alignX = 'right';
           }
 
-          if ((paneTop + CALENDAR_PANE_MIN_HEIGHT) > viewportBottom &&
+          if ((paneTop + bodyRect.top + viewportTop + CALENDAR_PANE_MIN_HEIGHT) > viewportBottom &&
             (bodyRect.bottom - panelBottom - CALENDAR_PANE_MIN_HEIGHT) > 0) {
             alignY = 'bottom';
           }
@@ -268,13 +276,17 @@
           calendarPane.style.display = 'block';
           calendarPane.style.position = "absolute";
           if (alignX === 'left') {
+            calendarPane.style.right = 'auto';
             calendarPane.style.left = paneLeft + 'px';
           } else {
             calendarPane.style.right = paneRight + 'px';
+            calendarPane.style.left = 'auto';
           }
           if (alignY === 'top') {
             calendarPane.style.top = paneTop + 'px';
+            calendarPane.style.bottom = 'auto';
           } else {
+            calendarPane.style.top = 'auto';
             calendarPane.style.bottom = panelBottom + 'px';
           }
 
@@ -283,12 +295,12 @@
         };
 
         ctrl.detachCalendarPane = function() {
-          if (this.isCalendarOpen) {
-            //this.$mdUtil.enableScrolling();
+          if (ctrl.isCalendarOpen) {
+            //ctrl.$mdUtil.enableScrolling();
           }
 
-          if (this.calendarPane.parentNode) {
-            this.calendarPane.parentNode.removeChild(this.calendarPane);
+          if (ctrl.calendarPane.parentNode) {
+            ctrl.calendarPane.parentNode.removeChild(ctrl.calendarPane);
           }
         };
       } else {
