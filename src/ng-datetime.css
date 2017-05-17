@@ -142,3 +142,25 @@ md-menu-content.flex-menu-content.minute-menu-content {
   right: -2px;
   top: 0;
 }
+
+/*** picker ***/
+.no-margin {
+  margin: 0 !important;
+}
+
+ng-datetime-picker {
+  display: inline-block;
+  position: relative;
+}
+
+ng-datetime-picker .ng-datetime-wrapper {
+  /* position: absolute; */
+}
+
+ng-datetime-picker .text-mode-input {
+  min-width: 350px;
+  text-align: center;
+}
+
+
+

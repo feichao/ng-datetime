@@ -1,10 +1,7 @@
-(function () {
+(function() {
   'use strict';
 
-  angular
-    .module('ngDatetimePicker', [
-      'ngDatetime'
-    ])
+  angular.module('ngDatetimePicker', ['ngDatetime'])
     .directive('ngDatetimePicker', NgDatetimePicker);
 
   var NG_DATETIME_TEMPLATE = [
@@ -37,65 +34,52 @@
         maxLength: '@',
         minLength: '@'
       },
-      template: function ($element, $attr) {
+      template: function($element, $attr) {
         var template;
         var display = '{{ startChoice }}&nbsp;&nbsp;~&nbsp;&nbsp;{{ endChoice }}';
         if ($attr.dtText === undefined) { // button mode
           if ($attr.choice) {
             template = [
-              '<md-button class="md-raised md-primary time-picker-switch" ng-click="vm.open($event)">',
+              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="$mdOpenMenu($event)">',
               ' {{ choice }}',
-              '</md-button>'].join(' ');
+              '</md-button>'
+            ].join(' ');
           } else {
             template = [
-              '<md-button class="md-raised md-primary time-picker-switch" ng-click="vm.open($event)">',
+              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="$mdOpenMenu($event)">',
               display,
-              '</md-button>'].join(' ');
+              '</md-button>'
+            ].join(' ');
           }
-        } else {  // text mode
+        } else { // text mode
           if ($attr.choice) {
             template = [
-              '<md-input-container class="time-picker-switch">',
-              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.open($event)" value="{{ choice }}">', '</md-input-container>'].join(' ');
+              '<md-input-container class="time-picker-switch no-margin text-mode-input">',
+              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.showDatatimePickerDialog($event)" value="{{ choice }}">',
+              '</md-input-container>'
+            ].join(' ');
           } else {
             template = [
-              '<md-input-container class="time-picker-switch">',
-              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.open($event)" value="',
+              '<md-input-container class="time-picker-switch no-margin text-mode-input">',
+              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.showDatatimePickerDialog($event)" value="',
               display,
               '">',
-              '</md-input-container>'].join(' ');
+              '</md-input-container>'
+            ].join(' ');
           }
         }
 
         if ($attr.dtDialog === undefined) {
-          template += '<div ng-show="vm.isCalendarOpen" class="ng-datetime-inline">' + NG_DATETIME_TEMPLATE + '</div>';
+          template += '<md-menu-content><div class="ng-datetime-wrapper ng-datetime-inline">' + NG_DATETIME_TEMPLATE + '</div></md-menu-content>';
         }
 
-        return template;
+        return '<md-menu>' + template + '</md-menu>';
       },
-      controller: ['$scope', '$element', '$attrs', '$window', '$mdUtil', '$mdDialog', NgDatetimePickerCtrl],
-      controllerAs: 'vm',
-      compile: NgDatetimePickerCompile
+      controller: ['$scope', '$element', '$attrs', '$document', '$mdUtil', '$mdDialog', NgDatetimePickerCtrl],
+      controllerAs: 'vm'
     };
 
-    function NgDatetimePickerCompile($element, $attr) {
-      var inputElement = $element[0].querySelector('input');
-      if (inputElement) {
-        //input style时调整显示宽度和位置
-        inputElement.style.textAlign = 'center';
-        inputElement.style.position = 'relative';
-        inputElement.style.top = '12px';
-        if ($attr.startChoice && $attr.endChoice) {
-          inputElement.style.minWidth = '350px';
-        }
-      }
-
-      return function ($scope, $element, $attr) {
-
-      };
-    }
-
-    function NgDatetimePickerCtrl($scope, $element, $attrs, $window, $mdUtil, $mdDialog) {
+    function NgDatetimePickerCtrl($scope, $element, $attrs, $document, $mdUtil, $mdDialog) {
       var vm = this;
       vm.isRange = !$scope.choice;
       vm.isDtDialog = $attrs.dtDialog !== undefined;
@@ -113,97 +97,47 @@
       vm.dtConfirm = typeof $scope.dtConfirm === 'function' ? $scope.dtConfirm : angular.noop;
       vm.dtCancel = typeof $scope.dtCancel === 'function' ? $scope.dtCancel : angular.noop;
 
+      $element.on('click', function(event) {
+        event.stopPropagation();
+      });
+
+      $document.on('click', function(event) {
+        vm.isCalendarOpen = false;
+        $scope.$digest();
+      });
+
+      vm.save = function(startChoice, endChoice, choice) {
+        vm.startChoice = startChoice;
+        vm.endChoice = endChoice;
+        vm.choice = choice;
+        vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
+        vm.closeCalendarPanel();
+      };
+
       if (!vm.isDtDialog) { //判断是否对话框显示模式
-        vm.$window = $window;
         vm.$mdUtil = $mdUtil;
-        vm.documentElement = angular.element(document.documentElement);
-        vm.openOnFocus = true; //输入框获取到焦点时打开
 
         vm.isCalendarOpen = false;
-        vm.isOpen = false;
-        vm.isDisabled = false;
-        vm.inputFocusedOnWindowBlur = false;
         vm.switchElement = $element[0].querySelector('.time-picker-switch');
         vm.calendarPane = $element[0].querySelector('.ng-datetime-inline');
 
-        vm.save = function (startChoice, endChoice, choice) {
-          vm.startChoice = startChoice;
-          vm.endChoice = endChoice;
-          vm.choice = choice;
-          vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
-          vm.closeCalendarPane();
+        vm.cancel = function() {
+          vm.closeCalendarPanel();
         };
 
-        vm.cancel = function () {
-          vm.closeCalendarPane();
-        };
-
-        vm.handleWindowBlur = function () {
-          vm.inputFocusedOnWindowBlur = (document.activeElement === vm.switchElement);
-        };
-
-        vm.handleBodyClick = function (event) {
-          if (vm.isCalendarOpen) {
-            //var isInCalendar = this.$mdUtil.getClosest(event.target, 'ng-datetime');
-
-            var clickX = event.clientX;
-            var clickY = event.clientY;
-            var elementRect = vm.calendarPane.getBoundingClientRect();
-            var isInCalendar = false;
-
-            if (clickX > elementRect.left && clickX < elementRect.right &&
-              clickY > elementRect.top && clickY < elementRect.bottom) {
-              isInCalendar = true;
-            }
-            if (!isInCalendar) {
-              vm.closeCalendarPane();
-            }
+        vm.openCalendarPanel = function(event, $mdMenu) {
+          vm.isCalendarOpen = !vm.isCalendarOpen;
+          $mdMenu.open(event);
+          if(vm.isCalendarOpen) {
+            calcPosition($element);
           }
         };
 
-        vm.bodyClickHandler = angular.bind(this, vm.handleBodyClick);
-        vm.windowBlurHandler = angular.bind(this, vm.handleWindowBlur);
-
-        vm.openCalendarPanel = function (event) {
-          if (!vm.isCalendarOpen && !vm.isDisabled && !vm.inputFocusedOnWindowBlur) {
-            vm.isCalendarOpen = true;
-            vm.isOpen = true;
-            vm.calendarPaneOpenedFrom = event.target;
-
-            vm.attachCalendarPane();
-
-            var self = this;
-            vm.$mdUtil.nextTick(function () {
-              self.documentElement.on('click touchstart', self.bodyClickHandler);
-            }, false);
-          }
+        vm.closeCalendarPanel = function() {
+          vm.isCalendarOpen = false;
         };
 
-        vm.closeCalendarPane = function () {
-          if (vm.isCalendarOpen) {
-            var self = this;
-
-            self.detachCalendarPane();
-
-            self.documentElement.off('click touchstart', self.bodyClickHandler);
-
-            self.calendarPaneOpenedFrom.focus();
-            self.calendarPaneOpenedFrom = null;
-
-            if (self.openOnFocus) {
-              self.$mdUtil.nextTick(reset);
-            } else {
-              reset();
-            }
-          }
-
-          function reset() {
-            self.isCalendarOpen = false;
-            self.isOpen = false;
-          }
-        };
-
-        vm.attachCalendarPane = function () {
+        vm.attachCalendarPane = function() {
           //计算内联显示时的显示位置
           var CALENDAR_PANE_MIN_WIDTH = 300;
           var CALENDAR_PANE_MIN_HEIGHT = 350;
@@ -221,7 +155,7 @@
           var rightMargin = 0;
           var heightBias = 0;
 
-          if (typeof ($attrs.dtText) != 'undefined') {
+          if (typeof($attrs.dtText) != 'undefined') {
             heightBias = 12;
           }
 
@@ -275,7 +209,7 @@
           document.body.appendChild(calendarPane);
         };
 
-        vm.detachCalendarPane = function () {
+        vm.detachCalendarPane = function() {
           if (vm.isCalendarOpen) {
             //vm.$mdUtil.enableScrolling();
           }
@@ -284,65 +218,55 @@
             vm.calendarPane.parentNode.removeChild(vm.calendarPane);
           }
         };
-      } else {
-        vm.showDatatimePickerDialog = function (ev) {
-          var template = [
+      }
+
+      vm.showDatatimePickerDialog = function(ev) {
+        $mdDialog.show({
+          controller: ['$mdDialog', 'resolveData', DialogController],
+          controllerAs: 'vm',
+          template: [
             '<md-dialog aria-label="日期时间选择">',
             NG_DATETIME_TEMPLATE,
             '</md-dialog>'
-          ].join('');
-
-          $mdDialog.show({
-            controller: ['$mdDialog', 'resolveData', DialogController],
-            controllerAs: 'vm',
-            template: template,
-            targetEvent: ev,
-            transclude: true,
-            resolve: {
-              resolveData: function () {
-                return {
-                  max: vm.max,
-                  min: vm.min,
-                  maxLength: vm.maxLength,
-                  minLength: vm.minLength,
-                  choice: vm.choice,
-                  startChoice: vm.startChoice,
-                  endChoice: vm.endChoice,
-                  dtQSelect: vm.dtQSelect,
-                  dtLanguage: vm.dtLanguage,
-                  dtType: vm.dtType
-                };
-              }
+          ].join(''),
+          targetEvent: ev,
+          transclude: true,
+          resolve: {
+            resolveData: function() {
+              return vm;
             }
-          }).then(function (data) {
-            vm.startChoice = data.startChoice;
-            vm.endChoice = data.endChoice;
-            vm.choice = data.choice;
-            vm.dtConfirm(data);
-          });
-        };
-      }
-
-      vm.open = function (event) {
-        if (vm.isDtDialog) {
-          vm.showDatatimePickerDialog(event);
-        } else {
-          vm.openCalendarPanel(event);
-        }
+          }
+        }).then(function(data) {
+          vm.startChoice = data.startChoice;
+          vm.endChoice = data.endChoice;
+          vm.choice = data.choice;
+          vm.dtConfirm(data);
+        });
       };
     }
+  }
 
-    function DialogController($mdDialog, resolveData) {
-      var vm = this;
+  function calcPosition(element) {
+    var elePositionRect = element[0].getBoundingClientRect();
+    // if(elePositionRect)
+    console.log(element[0].getBoundingClientRect());
 
-      angular.extend(vm, resolveData);
-      vm.save = function (startChoice, endChoice, choice) {
-        $mdDialog.hide({ startChoice: startChoice, endChoice: endChoice, choice: choice });
-      };
+    var ngDt = element.find('div');
+    console.log(ngDt);
+    console.log(ngDt[1].offsetWidth);
+    console.log(ngDt[1].offsetHeight);
+  }
 
-      vm.cancel = function () {
-        $mdDialog.cancel();
-      };
-    }
+  function DialogController($mdDialog, resolveData) {
+    var vm = this;
+
+    angular.extend(vm, resolveData);
+    vm.save = function(startChoice, endChoice, choice) {
+      $mdDialog.hide({ startChoice: startChoice, endChoice: endChoice, choice: choice });
+    };
+
+    vm.cancel = function() {
+      $mdDialog.cancel();
+    };
   }
 })();
