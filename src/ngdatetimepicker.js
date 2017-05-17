@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   angular
@@ -7,18 +7,13 @@
     ])
     .directive('ngDatetimePicker', NgDatetimePicker);
 
-  var NG_DATETIME_TEMP = ['<ng-datetime choice="choice" ',
-    'start-choice="startChoice"  end-choice="endChoice" ',
-    'max={{ctrl.max}} min={{ctrl.min}} ',
-    'max-length={{ctrl.maxLength}} min-length={{ctrl.minLength}} ',
-    'dt-confirm="choice?ctrl.save(choice):ctrl.save(startChoice,endChoice)" dt-cancel="ctrl.cancel()" ',
-    'dt-q-select="ctrl.dtQSelect" ',
-    'dt-language="ctrl.dtLanguage" ',
-    'dt-type={{ctrl.dtType}} ',
-    'class="ng-datetime-inline" ',
-    'ng-show="ctrl.isCalendarOpen">',
+  var NG_DATETIME_TEMPLATE = [
+    '<ng-datetime dt-type="{{ vm.dtType }}" choice="vm.choice" start-choice="vm.startChoice" end-choice="vm.endChoice"',
+    ' max="{{ vm.max }}" min="{{ vm.min }}" max-length="{{ vm.maxLength }}" min-length="{{ vm.minLength }}"',
+    ' dt-confirm="vm.save(startChoice, endChoice, choice)" dt-cancel="vm.cancel()" ',
+    ' dt-q-select="vm.dtQSelect" dt-language="vm.dtLanguage"',
     '</ng-datetime>'
-  ].join('');
+  ].join(' ');
 
   /**
    * @ngInject
@@ -31,52 +26,55 @@
         dtQSelect: '=',
         dtConfirm: '&',
         dtCancel: '&',
-        format: '@',
 
-        // datetime params
         startChoice: '=',
         endChoice: '=',
         choice: '=',
+        dtLanguage: '=',
 
-        // restrict datetime params
         max: '@',
         min: '@',
         maxLength: '@',
-        minLength: '@',
-
-        // dialog mode
-        //dialog   //设置是否为对话框显示模式,默认为内联显示模式
-
-        //input style
-        //inputstyle //设置是否为输入框样式,默认为按钮样式
-
-        // language
-        dtLanguage: '='
+        minLength: '@'
       },
-      template: function($element, $attr) {
-        var templateHtml = '';
-        if (typeof($attr.inputstyle) == 'undefined') {
+      template: function ($element, $attr) {
+        var template;
+        var display = '{{ startChoice }}&nbsp;&nbsp;~&nbsp;&nbsp;{{ endChoice }}';
+        if ($attr.dtText === undefined) { // button mode
           if ($attr.choice) {
-            templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{choice}}</md-button>';
+            template = [
+              '<md-button class="md-raised md-primary time-picker-switch" ng-click="vm.open($event)">',
+              ' {{ choice }}',
+              '</md-button>'].join(' ');
           } else {
-            templateHtml = '<md-button class="md-raised md-primary time-picker-switch" ng-click="ctrl.open($event)">{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}</md-button>';
+            template = [
+              '<md-button class="md-raised md-primary time-picker-switch" ng-click="vm.open($event)">',
+              display,
+              '</md-button>'].join(' ');
           }
-        } else {
+        } else {  // text mode
           if ($attr.choice) {
-            templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{choice}}"></md-input-container>';
+            template = [
+              '<md-input-container class="time-picker-switch">',
+              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.open($event)" value="{{ choice }}">', '</md-input-container>'].join(' ');
           } else {
-            templateHtml = '<md-input-container class="time-picker-switch"><input type="text" readonly="readonly" aria-label="please select" ng-click="ctrl.open($event)" value="{{startChoice}}&nbsp;&nbsp;~&nbsp;&nbsp;{{endChoice}}"></md-input-container>';
+            template = [
+              '<md-input-container class="time-picker-switch">',
+              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.open($event)" value="',
+              display,
+              '">',
+              '</md-input-container>'].join(' ');
           }
         }
 
-        if (typeof($attr.dialog) == 'undefined') {
-          templateHtml += NG_DATETIME_TEMP;
+        if ($attr.dtDialog === undefined) {
+          template += '<div ng-show="vm.isCalendarOpen" class="ng-datetime-inline">' + NG_DATETIME_TEMPLATE + '</div>';
         }
 
-        return templateHtml;
+        return template;
       },
       controller: ['$scope', '$element', '$attrs', '$window', '$mdUtil', '$mdDialog', NgDatetimePickerCtrl],
-      controllerAs: 'ctrl',
+      controllerAs: 'vm',
       compile: NgDatetimePickerCompile
     };
 
@@ -91,69 +89,66 @@
           inputElement.style.minWidth = '350px';
         }
       }
-      return function($scope, $element, $attr) {
+
+      return function ($scope, $element, $attr) {
 
       };
     }
 
-    /**
-     * @ngInject
-     */
     function NgDatetimePickerCtrl($scope, $element, $attrs, $window, $mdUtil, $mdDialog) {
-      if (typeof($attrs.dialog) == 'undefined') { //判断是否对话框显示模式
-        var ctrl = this;
+      var vm = this;
+      vm.isRange = !$scope.choice;
+      vm.isDtDialog = $attrs.dtDialog !== undefined;
 
-        ctrl.$window = $window;
-        ctrl.$mdUtil = $mdUtil;
-        ctrl.documentElement = angular.element(document.documentElement);
-        ctrl.openOnFocus = true; //输入框获取到焦点时打开
+      vm.dtQSelect = $scope.dtQSelect;
+      vm.dtLanguage = $scope.dtLanguage;
+      vm.dtType = $scope.dtType;
+      vm.max = $scope.max;
+      vm.min = $scope.min;
+      vm.maxLength = $scope.maxLength;
+      vm.minLength = $scope.minLength;
+      vm.startChoice = $scope.startChoice;
+      vm.endChoice = $scope.endChoice;
+      vm.choice = $scope.choice;
+      vm.dtConfirm = typeof $scope.dtConfirm === 'function' ? $scope.dtConfirm : angular.noop;
+      vm.dtCancel = typeof $scope.dtCancel === 'function' ? $scope.dtCancel : angular.noop;
 
-        ctrl.isCalendarOpen = false;
-        ctrl.isOpen = false;
-        ctrl.isDisabled = false;
-        ctrl.inputFocusedOnWindowBlur = false;
-        ctrl.switchElement = $element[0].querySelector('.time-picker-switch');
-        ctrl.calendarPane = $element[0].querySelector('.ng-datetime-inline');
+      if (!vm.isDtDialog) { //判断是否对话框显示模式
+        vm.$window = $window;
+        vm.$mdUtil = $mdUtil;
+        vm.documentElement = angular.element(document.documentElement);
+        vm.openOnFocus = true; //输入框获取到焦点时打开
 
-        ctrl.dtQSelect = $scope.dtQSelect;
-        ctrl.dtLanguage = $scope.dtLanguage;
-        ctrl.dtType = $scope.dtType;
-        ctrl.max = $scope.max;
-        ctrl.min = $scope.min;
-        ctrl.maxLength = $scope.maxLength;
-        ctrl.minLength = $scope.minLength;
+        vm.isCalendarOpen = false;
+        vm.isOpen = false;
+        vm.isDisabled = false;
+        vm.inputFocusedOnWindowBlur = false;
+        vm.switchElement = $element[0].querySelector('.time-picker-switch');
+        vm.calendarPane = $element[0].querySelector('.ng-datetime-inline');
 
-        ctrl.save = function(start, end) {
-          if (end) {
-            $scope.startChoice = start;
-            $scope.endChoice = end;
-            if (typeof($scope.dtConfirm) === 'function') {
-              $scope.dtConfirm({ startChoice: start, endChoice: end });
-            }
-          } else {
-            $scope.choice = start;
-            if (typeof($scope.dtConfirm) === 'function') {
-              $scope.dtConfirm({ choice: start });
-            }
-          }
-          ctrl.closeCalendarPane();
+        vm.save = function (startChoice, endChoice, choice) {
+          vm.startChoice = startChoice;
+          vm.endChoice = endChoice;
+          vm.choice = choice;
+          vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
+          vm.closeCalendarPane();
         };
 
-        ctrl.cancel = function() {
-          ctrl.closeCalendarPane();
+        vm.cancel = function () {
+          vm.closeCalendarPane();
         };
 
-        ctrl.handleWindowBlur = function() {
-          ctrl.inputFocusedOnWindowBlur = (document.activeElement === ctrl.switchElement);
+        vm.handleWindowBlur = function () {
+          vm.inputFocusedOnWindowBlur = (document.activeElement === vm.switchElement);
         };
 
-        ctrl.handleBodyClick = function(event) {
-          if (ctrl.isCalendarOpen) {
+        vm.handleBodyClick = function (event) {
+          if (vm.isCalendarOpen) {
             //var isInCalendar = this.$mdUtil.getClosest(event.target, 'ng-datetime');
 
             var clickX = event.clientX;
             var clickY = event.clientY;
-            var elementRect = ctrl.calendarPane.getBoundingClientRect();
+            var elementRect = vm.calendarPane.getBoundingClientRect();
             var isInCalendar = false;
 
             if (clickX > elementRect.left && clickX < elementRect.right &&
@@ -161,31 +156,31 @@
               isInCalendar = true;
             }
             if (!isInCalendar) {
-              ctrl.closeCalendarPane();
+              vm.closeCalendarPane();
             }
           }
         };
 
-        ctrl.bodyClickHandler = angular.bind(this, ctrl.handleBodyClick);
-        ctrl.windowBlurHandler = angular.bind(this, ctrl.handleWindowBlur);
+        vm.bodyClickHandler = angular.bind(this, vm.handleBodyClick);
+        vm.windowBlurHandler = angular.bind(this, vm.handleWindowBlur);
 
-        ctrl.openCalendarPane = function(event) {
-          if (!ctrl.isCalendarOpen && !ctrl.isDisabled && !ctrl.inputFocusedOnWindowBlur) {
-            ctrl.isCalendarOpen = true;
-            ctrl.isOpen = true;
-            ctrl.calendarPaneOpenedFrom = event.target;
+        vm.openCalendarPanel = function (event) {
+          if (!vm.isCalendarOpen && !vm.isDisabled && !vm.inputFocusedOnWindowBlur) {
+            vm.isCalendarOpen = true;
+            vm.isOpen = true;
+            vm.calendarPaneOpenedFrom = event.target;
 
-            ctrl.attachCalendarPane();
+            vm.attachCalendarPane();
 
             var self = this;
-            ctrl.$mdUtil.nextTick(function() {
+            vm.$mdUtil.nextTick(function () {
               self.documentElement.on('click touchstart', self.bodyClickHandler);
             }, false);
           }
         };
 
-        ctrl.closeCalendarPane = function() {
-          if (ctrl.isCalendarOpen) {
+        vm.closeCalendarPane = function () {
+          if (vm.isCalendarOpen) {
             var self = this;
 
             self.detachCalendarPane();
@@ -208,16 +203,16 @@
           }
         };
 
-        ctrl.attachCalendarPane = function() {
+        vm.attachCalendarPane = function () {
           //计算内联显示时的显示位置
           var CALENDAR_PANE_MIN_WIDTH = 300;
           var CALENDAR_PANE_MIN_HEIGHT = 350;
-          var calendarPane = ctrl.calendarPane;
+          var calendarPane = vm.calendarPane;
           var body = document.body;
 
           calendarPane.style.transform = '';
 
-          var elementRect = ctrl.switchElement.getBoundingClientRect();
+          var elementRect = vm.switchElement.getBoundingClientRect();
           var bodyRect = body.getBoundingClientRect();
 
           var topMargin = 3;
@@ -226,7 +221,7 @@
           var rightMargin = 0;
           var heightBias = 0;
 
-          if (typeof($attrs.inputstyle) != 'undefined') {
+          if (typeof ($attrs.dtText) != 'undefined') {
             heightBias = 12;
           }
 
@@ -246,8 +241,8 @@
             -bodyRect.left :
             document.body.scrollLeft;
 
-          var viewportBottom = viewportTop + ctrl.$window.innerHeight;
-          var viewportRight = viewportLeft + ctrl.$window.innerWidth;
+          var viewportBottom = viewportTop + vm.$window.innerHeight;
+          var viewportRight = viewportLeft + vm.$window.innerWidth;
 
           if ((paneLeft + bodyRect.left + viewportLeft + CALENDAR_PANE_MIN_WIDTH) > viewportRight &&
             (bodyRect.right - paneRight - CALENDAR_PANE_MIN_WIDTH) > 0) {
@@ -280,103 +275,73 @@
           document.body.appendChild(calendarPane);
         };
 
-        ctrl.detachCalendarPane = function() {
-          if (ctrl.isCalendarOpen) {
-            //ctrl.$mdUtil.enableScrolling();
+        vm.detachCalendarPane = function () {
+          if (vm.isCalendarOpen) {
+            //vm.$mdUtil.enableScrolling();
           }
 
-          if (ctrl.calendarPane.parentNode) {
-            ctrl.calendarPane.parentNode.removeChild(ctrl.calendarPane);
+          if (vm.calendarPane.parentNode) {
+            vm.calendarPane.parentNode.removeChild(vm.calendarPane);
           }
         };
       } else {
-        //弹出对话框显示模式
-        $scope.showDatatimeimePickDialog = function(ev) {
-          var template = ['<md-dialog class="no-padding" aria-label="日期时间选择">',
-            '<ng-datetime choice="vm.choice" ',
-            'start-choice="vm.startChoice"  end-choice="vm.endChoice" ',
-            'max={{vm.max}} min={{vm.min}} ',
-            'max-length={{vm.maxLength}} min-length={{vm.minLength}} ',
-            'dt-confirm="vm.choice?vm.save(choice):vm.save(startChoice,endChoice)" dt-cancel="vm.cancel()" ',
-            'dt-q-select="vm.dtQSelect" ',
-            'dt-language="vm.dtLanguage" ',
-            'dt-type={{vm.dtType}} ',
-            '</ng-datetime>',
+        vm.showDatatimePickerDialog = function (ev) {
+          var template = [
+            '<md-dialog aria-label="日期时间选择">',
+            NG_DATETIME_TEMPLATE,
             '</md-dialog>'
           ].join('');
 
           $mdDialog.show({
-            controller: DialogController,
+            controller: ['$mdDialog', 'resolveData', DialogController],
             controllerAs: 'vm',
             template: template,
             targetEvent: ev,
             transclude: true,
             resolve: {
-              data: function() {
+              resolveData: function () {
                 return {
-                  max: $scope.max,
-                  min: $scope.min,
-                  maxLength: $scope.maxLength,
-                  minLength: $scope.minLength,
-                  choice: $scope.choice,
-                  startChoice: $scope.startChoice,
-                  endChoice: $scope.endChoice,
-                  dtQSelect: $scope.dtQSelect,
-                  dtLanguage: $scope.dtLanguage,
-                  dtType: $scope.dtType || 'date'
+                  max: vm.max,
+                  min: vm.min,
+                  maxLength: vm.maxLength,
+                  minLength: vm.minLength,
+                  choice: vm.choice,
+                  startChoice: vm.startChoice,
+                  endChoice: vm.endChoice,
+                  dtQSelect: vm.dtQSelect,
+                  dtLanguage: vm.dtLanguage,
+                  dtType: vm.dtType
                 };
               }
             }
-          }).then(function(date) {
-            if (!date.choice) {
-              $scope.startChoice = date.startChoice;
-              $scope.endChoice = date.endChoice;
-              if (typeof($scope.dtConfirm) === 'function') {
-                $scope.dtConfirm({ startChoice: $scope.startChoice, endChoice: $scope.endChoice });
-              }
-            } else {
-              $scope.choice = date.choice;
-              if (typeof($scope.dtConfirm) === 'function') {
-                $scope.dtConfirm({ choice: $scope.choice });
-              }
-            }
-          }, function() {});
+          }).then(function (data) {
+            vm.startChoice = data.startChoice;
+            vm.endChoice = data.endChoice;
+            vm.choice = data.choice;
+            vm.dtConfirm(data);
+          });
         };
-
-        /**
-         * @ngInject
-         */
-        function DialogController($mdDialog, data) {
-          var vm = this;
-          vm.choice = data.choice;
-          vm.startChoice = data.startChoice;
-          vm.endChoice = data.endChoice;
-          vm.dtQSelect = data.dtQSelect;
-          vm.dtLanguage = data.dtLanguage;
-          vm.dtType = data.dtType;
-          vm.max = data.max;
-          vm.min = data.min;
-          vm.maxLength = data.maxLength;
-          vm.minLength = data.minLength;
-          vm.save = function(start, end) {
-            if (end) {
-              $mdDialog.hide({ startChoice: start, endChoice: end });
-            } else {
-              $mdDialog.hide({ choice: start });
-            }
-          };
-          vm.cancel = function() {
-            $mdDialog.cancel();
-          };
-        }
       }
 
-      this.open = function(event) {
-        if (typeof($attrs.dialog) != 'undefined') { //判断是否对话框模式显示
-          $scope.showDatatimeimePickDialog(event);
+      vm.open = function (event) {
+        if (vm.isDtDialog) {
+          vm.showDatatimePickerDialog(event);
         } else {
-          this.openCalendarPane(event);
+          vm.openCalendarPanel(event);
         }
+      };
+    }
+
+    function DialogController($mdDialog, resolveData) {
+      var vm = this;
+
+      angular.extend(vm, resolveData);
+      vm.save = function (startChoice, endChoice, choice) {
+        $mdDialog.hide({ startChoice: startChoice, endChoice: endChoice, choice: choice });
+      };
+
+      vm.cancel = function () {
+        $mdDialog.cancel();
       };
     }
   }

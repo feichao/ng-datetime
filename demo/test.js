@@ -71,6 +71,8 @@
 
       $scope.confirm = function(a, b) {
         if (b) {
+          $scope.startDatetime = a;
+          $scope.endDatetime = b;
           console.log('Your select: start is ' + a + ', end is ' + b);
         } else {
           console.log('Your select: ' + a);
