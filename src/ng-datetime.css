@@ -152,26 +152,57 @@ ng-datetime-picker {
   position: relative;
 }
 
-ng-datetime-picker .ng-datetime-wrapper {
+ng-datetime-picker .text-mode-input {
+  min-width: 350px;
+}
+
+.ng-datetime-wrapper {
   /*transition: all 0.35s;*/
   border-radius: 4px;
   box-shadow: 0px 0px 15px 0px #aaa;
-  left: 0;
   margin: 5px 0;
   position: absolute;
-  top: 100%;
   transform: scale3d(0, 0, 0);
+  -webkit-transform: scale3d(0, 0, 0);
+  -o-transform: scale3d(0, 0, 0);
+  -ms-transform: scale3d(0, 0, 0);
+  -moz-transform: scale3d(0, 0, 0);
   transform-origin: left top;
+  -webkit-transform-origin: left top;
+  -o-transform-origin: left top;
+  -ms-transform-origin: left top;
+  -moz-transform-origin: left top;
+  z-index: 99;
 }
 
-ng-datetime-picker .ng-datetime-wrapper.open {
+.ng-datetime-wrapper.open {
   transform: scale3d(1, 1, 1);
+  -webkit-transform: scale3d(1, 1, 1);
+  -o-transform: scale3d(1, 1, 1);
+  -ms-transform: scale3d(1, 1, 1);
+  -moz-transform: scale3d(1, 1, 1);
 }
 
-ng-datetime-picker .text-mode-input {
-  min-width: 350px;
-  text-align: center;
+.ng-datetime-wrapper.open.x50 {
+  transform: scale3d(1, 1, 1) translateX(-50%);
+  -webkit-transform: scale3d(1, 1, 1) translateX(-50%);
+  -o-transform: scale3d(1, 1, 1) translateX(-50%);
+  -ms-transform: scale3d(1, 1, 1) translateX(-50%);
+  -moz-transform: scale3d(1, 1, 1) translateX(-50%);
 }
 
+.ng-datetime-wrapper.open.y50 {
+  transform: scale3d(1, 1, 1) translateY(-50%);
+  -webkit-transform: scale3d(1, 1, 1) translateY(-50%);
+  -o-transform: scale3d(1, 1, 1) translateY(-50%);
+  -ms-transform: scale3d(1, 1, 1) translateY(-50%);
+  -moz-transform: scale3d(1, 1, 1) translateY(-50%);
+}
 
-
+.ng-datetime-wrapper.open.xy50 {
+  transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
+  -webkit-transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
+  -o-transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
+  -ms-transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
+  -moz-transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
+}

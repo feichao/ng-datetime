@@ -36,6 +36,7 @@
       },
       template: function ($element, $attr) {
         var template;
+        var random = (Math.random() + '').substr(2);
         var display = '{{ startChoice }}&nbsp;&nbsp;~&nbsp;&nbsp;{{ endChoice }}';
         if ($attr.dtText === undefined) { // button mode
           if ($attr.choice) {
@@ -70,17 +71,24 @@
         }
 
         if ($attr.dtDialog === undefined) {
-          template += '<div ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper ng-datetime-inline">' + NG_DATETIME_TEMPLATE + '</div>';
+          template += '<div dt-id="' + random + '" ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper">' + NG_DATETIME_TEMPLATE + '</div>';
         }
+
+        $element.attr('dt-id', random);
 
         return template;
       },
-      controller: ['$scope', '$element', '$attrs', '$document', '$timeout', '$mdDialog', NgDatetimePickerCtrl],
+      controller: ['$scope', '$element', '$attrs', '$document', '$timeout', '$q', '$mdUtil', '$mdDialog', NgDatetimePickerCtrl],
       controllerAs: 'vm'
     };
 
-    function NgDatetimePickerCtrl($scope, $element, $attrs, $document, $timeout, $mdDialog) {
+    function NgDatetimePickerCtrl($scope, $element, $attrs, $document, $timeout, $q, $mdUtil, $mdDialog) {
       var vm = this;
+      var bodyEle = $document[0].body;
+      var docWidth = bodyEle.offsetWidth;
+      var docHeight = bodyEle.offsetHeight;
+      var dtId = $element.attr('dt-id');
+
       vm.isRange = !$scope.choice;
       vm.isDtDialog = $attrs.dtDialog !== undefined;
 
@@ -99,6 +107,18 @@
 
       vm.isPanelLoading = false;
       vm.isPanelOpen = false;
+
+      $scope.$on('$destroy', function() {
+        var wrapper = vm.getCorrectDatetimePicker().parent();
+        wrapper.remove();
+      });
+
+      $scope.$watch('vm.isPanelOpen', function() {
+        if(!vm.isPanelOpen) {
+          var element = vm.getCorrectDatetimePicker().parent();
+          element.removeClass('x50 y50 xy50');
+        }
+      });
 
       $element.on('click', function (event) {
         event.stopPropagation();
@@ -124,9 +144,16 @@
       vm.openCalendarPanel = function (event) {
         if (!vm.isPanelLoading) {
           vm.isPanelLoading = true;
-          vm.calcPosition($element);
+          vm.appendCalendarPanel().then(function() {
+            vm.ignoreAppendedDatetimeClickEvent();
+            vm.calcPosition();
+            vm.isPanelOpen = true;
+          });
         } else {
-          vm.isPanelOpen = !vm.isPanelOpen;          
+          vm.isPanelOpen = !vm.isPanelOpen;
+          if(vm.isPanelOpen) {
+            vm.calcPosition();
+          }
         }
       };
 
@@ -134,37 +161,65 @@
         vm.isPanelOpen = false;
       };
 
-      vm.calcPosition = function (element) {
-        var elePositionRect = { left: 0, right: 0, width: 0, top: 0, bottom: 0, height: 0 };
-        var docWidth = $document[0].body.offsetWidth;
-        var docHeight = $document[0].body.offsetHeight;
-        if(element[0] && typeof element[0].getBoundingClientRect === 'function') {
-          elePositionRect = element[0].getBoundingClientRect();
+      vm.getCorrectDatetimePicker = function() {
+        var allDTs = angular.element(bodyEle).find('ng-datetime');
+        var dtEle;
+        for(var i = 0; i < allDTs.length; i++) {
+          dtEle = angular.element(allDTs[i]);
+          if(dtEle.parent().attr('dt-id') === dtId) {
+            return dtEle;
+          }
         }
+        return allDTs;
+      };
 
-        console.log(elePositionRect);
+      vm.appendCalendarPanel = function() {
+        var deferred = $q.defer();
+        $timeout(function() { // append ng-datetime-wrapper to body
+          angular.element(bodyEle).append($element.find('ng-datetime').parent());
+          deferred.resolve();
+        });
+        return deferred.promise;
+      };
 
-        $timeout(function() {
-          var datetimeEle = element.find('ng-datetime');
-          var datetimeEleWidth = 0;
-          var datetimeEleHeight = 0;
+      vm.ignoreAppendedDatetimeClickEvent = function() {
+        vm.getCorrectDatetimePicker().on('click', function (event) {
+          event.stopPropagation();
+        });
+      };
 
-          if(datetimeEle[0]) {
-            datetimeEleWidth = datetimeEle[0].offsetWidth;
-            datetimeEleHeight = datetimeEle[0].offsetHeight;
+      vm.calcPosition = function () {
+        var datetimeEle = vm.getCorrectDatetimePicker();
+        var datetimeEleWidth = 0;
+        var datetimeEleHeight = 0;
+        var datetimeEleParent = datetimeEle.parent();
+        var elePositionRect = $mdUtil.offsetRect($element[0], bodyEle);
+        var x50 = false;
+        elePositionRect.right = elePositionRect.left + elePositionRect.width;
+        elePositionRect.bottom = elePositionRect.top + elePositionRect.height;
 
-            if(docWidth - elePositionRect.left < datetimeEleWidth && elePositionRect.right >= datetimeEleWidth) {
-              datetimeEle.parent().css({ left: 'initial', right: 0 });
-            }
+        if (datetimeEle[0]) {
+          datetimeEleWidth = datetimeEle[0].offsetWidth;
+          datetimeEleHeight = datetimeEle[0].offsetHeight;
 
-            if(docHeight - elePositionRect.bottom < datetimeEleHeight && elePositionRect.top >= datetimeEleHeight) {
-              datetimeEle.parent().css({ bottom: '100%', top: 'initial' });
+          datetimeEleParent.css({ left: elePositionRect.left + 'px', top: elePositionRect.bottom + 'px' });
+          if (docWidth - elePositionRect.left < datetimeEleWidth) { // 左边没位置
+            if(elePositionRect.right >= datetimeEleWidth) { // 右边有位置
+              datetimeEleParent.css({ left: 'initial', right: (docWidth - elePositionRect.right) + 'px' });
+            } else { // 右边也没位置，居中
+              x50 = true;
+              datetimeEleParent.addClass('x50');
             }
           }
-
-          vm.isPanelOpen = true;
-        });
-      }
+          if (docHeight - elePositionRect.bottom < datetimeEleHeight) { // 下边没位置
+            if(elePositionRect.top >= datetimeEleHeight) { // 上边有位置
+              datetimeEleParent.css({ bottom: (docHeight - elePositionRect.top) + 'px', top: 'initial' });
+            } else { // 上边也没位置，居中
+              x50 ? datetimeEleParent.addClass('xy50') : datetimeEleParent.addClass('y50');
+            }
+          }
+        }
+      };
 
       vm.showDatatimePickerDialog = function (ev) {
         $mdDialog.show({
