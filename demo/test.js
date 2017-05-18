@@ -75,6 +75,7 @@
           $scope.endDatetime = b;
           console.log('Your select: start is ' + a + ', end is ' + b);
         } else {
+          $scope.datetime = a;
           console.log('Your select: ' + a);
         }
       }

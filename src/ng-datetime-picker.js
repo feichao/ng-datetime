@@ -37,16 +37,16 @@
       template: function ($element, $attr) {
         var template;
         var random = (Math.random() + '').substr(2);
-        var display = '{{ startChoice }}&nbsp;&nbsp;~&nbsp;&nbsp;{{ endChoice }}';
+        var display = '{{ vm.startChoice }}&nbsp;~&nbsp;{{ vm.endChoice }}';
         if ($attr.dtText === undefined) { // button mode
           if ($attr.choice) {
-            template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">{{ choice }}</md-button>';
+            template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">{{ vm.choice }}</md-button>';
           } else {
             template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">' + display + '</md-button>';
           }
         } else { // text mode
           if ($attr.choice) {
-            template = '<span class="text-mode-input" ng-click="vm.open($event)">{{ choice }}</span>';
+            template = '<span class="text-mode-input" ng-click="vm.open($event)">{{ vm.choice }}</span>';
           } else {
             template = '<span class="text-mode-input" ng-click="vm.open($event)">' + display + '</span>';
           }
@@ -209,9 +209,9 @@
             }
           }
         }).then(function (data) {
-          vm.startChoice = data.startChoice;
-          vm.endChoice = data.endChoice;
-          vm.choice = data.choice;
+          $scope.startChoice = vm.startChoice = data.startChoice;
+          $scope.endChoice = vm.endChoice = data.endChoice;
+          $scope.choice = vm.choice = data.choice;
           vm.dtConfirm(data);
         });
       };
@@ -225,9 +225,9 @@
       };
 
       vm.save = function (startChoice, endChoice, choice) {
-        vm.startChoice = startChoice;
-        vm.endChoice = endChoice;
-        vm.choice = choice;
+        $scope.startChoice = vm.startChoice = startChoice;
+        $scope.endChoice = vm.endChoice = endChoice;
+        $scope.choice = vm.choice = choice;
         vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
         vm.closeCalendarPanel();
       };

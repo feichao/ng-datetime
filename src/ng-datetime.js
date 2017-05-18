@@ -144,6 +144,7 @@
     '    </tr>',
     // times
     '    <tr class="time-picker" ng-if="picker.isShowTimePicker">',
+    '      <td></td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusHour(picker)">',
     '          <ng-md-icon size="24" aria-label="left" icon="keyboard_arrow_left"></ng-md-icon>',
@@ -184,7 +185,6 @@
     '          <ng-md-icon size="24" aria-label="right" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
     '      </td>',
-    '      <td></td>',
     '    </tr>',
     '  </tbody>',
     '</table>',
