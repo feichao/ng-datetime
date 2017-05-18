@@ -130,7 +130,7 @@
     '      </td>',
     '    </tr>',
     // weeks header
-    '    <tr class="week-header"  ng-if="picker.isShowDatePicker">',
+    '    <tr class="week-header" ng-if="picker.isShowDatePicker">',
     '      <td ng-repeat="week in staticString.weeks">{{ ::week }}</td>',
     '    </tr>',
     // days 

@@ -47,15 +47,16 @@ ng-datetime, .ng-datetime {
 
 .date-picker {
   border-collapse: collapse;
-  margin: 5px 20px;
+  margin: 5px 14px;
 }
 
 .date-picker .md-button {
   border-radius: 50%;
-  height: 36px;
+  height: 32px;
   margin: 0;
+  min-height: 32px;
   padding: 0;
-  width: 36px;
+  width: 32px;
 }
 
 .date-picker .md-button.normal-day:hover {
@@ -116,18 +117,19 @@ md-menu-content.flex-menu-content.minute-menu-content {
 }
 
 .flex-menu-content md-menu-item {
-  height: 36px;
-  min-height: 36px;
-  width: 36px;
+  height: 32px;
+  min-height: 32px;
+  width: 32px;
 }
 
 .flex-menu-content md-menu-item .md-button {
-  height: 36px;
+  height: 32px;
   margin: 0;
-  min-width: 36px;
-  min-height: 36px;
+  min-width: 32px;
+  min-height: 32px;
   padding: 0;
   text-align: center;
+  width: 32px;
 }
 
 .time-picker .split-time {
@@ -153,7 +155,11 @@ ng-datetime-picker {
 }
 
 ng-datetime-picker .text-mode-input {
-  min-width: 350px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  line-height: 28px;
+  outline: none;
+  padding: 4px 2px;
 }
 
 .ng-datetime-wrapper {

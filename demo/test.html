@@ -8,12 +8,10 @@
   <link rel="stylesheet" type="text/css" href="../src/ng-datetime.css">
   <style>
     body {
-      margin: 100px
     }
     .wrapper {
       overflow: hidden;
       padding: 10px 20px 30px 20px;
-      /*padding-bottom: 500px;*/
       text-align: left;
     }
 
@@ -29,28 +27,28 @@
     <div class="wrapper">
       <h3>Date Picker with max & min</h3>
       <h4>You select: {{ date }}</h4>
-      <ng-datetime-picker dialog dt-type="date" choice="date" dt-confirm="confirm(choice)" max="{{ max }}" min="{{ min }}"></ng-datetime-picker>
+      <ng-datetime-picker dt-text dt-type="date" choice="date" dt-confirm="confirm(choice)" max="{{ max }}" min="{{ min }}"></ng-datetime-picker>
     </div>
     <div class="wrapper">
       <h3>Time Picker</h3>
       <h4>You select: {{ time }}</h4>
-      <ng-datetime-picker inputstyle dt-type="time" choice="time" dt-confirm="confirm(choice)"></ng-datetime-picker>
+      <ng-datetime-picker dt-type="time" choice="time" dt-confirm="confirm(choice)"></ng-datetime-picker>
     </div>
     <div class="wrapper">
       <h3>Datetime Picker with quick-select</h3>
       <h4>You select: {{ datetime }}</h4>
-      <ng-datetime-picker dialog dt-type="datetime" choice="datetime" dt-q-select="qSelect" dt-confirm="confirm(choice)"></ng-datetime-picker>
+      <ng-datetime-picker dt-dialog dt-type="datetime" choice="datetime" dt-q-select="qSelect" dt-confirm="confirm(choice)"></ng-datetime-picker>
     </div>
     <div class="wrapper">
       <h3>Date-Range Picker with max-length = 10 days & min-length = 5 days</h3>
       <h4>You select: {{ startDate }} to {{ endDate }}</h4>
-      <ng-datetime-picker inputstyle dt-type="date-range" start-choice="startDate" end-choice="endDate" dt-confirm="confirm(startChoice, endChoice)"
+      <ng-datetime-picker dt-type="date-range" start-choice="startDate" end-choice="endDate" dt-confirm="confirm(startChoice, endChoice)"
         max-length="10" min-length="5"></ng-datetime-picker>
     </div>
     <div class="wrapper">
       <h3>Time-Range Picker</h3>
       <h4>You select: {{ startTime }} to {{ endTime }}</h4>
-      <ng-datetime-picker dt-type="time-range" start-choice="startTime" end-choice="endTime" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime-picker>
+      <ng-datetime-picker dt-text dt-type="time-range" start-choice="startTime" end-choice="endTime" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime-picker>
     </div>
     <div class="wrapper">
       <h3>Datetime-Range Picker with quick-select</h3>

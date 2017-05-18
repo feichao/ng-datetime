@@ -40,38 +40,21 @@
         var display = '{{ startChoice }}&nbsp;&nbsp;~&nbsp;&nbsp;{{ endChoice }}';
         if ($attr.dtText === undefined) { // button mode
           if ($attr.choice) {
-            template = [
-              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="vm.openCalendarPanel($event)">',
-              ' {{ choice }}',
-              '</md-button>'
-            ].join(' ');
+            template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">{{ choice }}</md-button>';
           } else {
-            template = [
-              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="vm.openCalendarPanel($event)">',
-              display,
-              '</md-button>'
-            ].join(' ');
+            template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">' + display + '</md-button>';
           }
         } else { // text mode
           if ($attr.choice) {
-            template = [
-              '<md-input-container class="time-picker-switch no-margin text-mode-input">',
-              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.showDatatimePickerDialog($event)" value="{{ choice }}">',
-              '</md-input-container>'
-            ].join(' ');
+            template = '<span class="text-mode-input" ng-click="vm.open($event)">{{ choice }}</span>';
           } else {
-            template = [
-              '<md-input-container class="time-picker-switch no-margin text-mode-input">',
-              ' <input type="text" readonly="readonly" aria-label="please select" ng-click="vm.showDatatimePickerDialog($event)" value="',
-              display,
-              '">',
-              '</md-input-container>'
-            ].join(' ');
+            template = '<span class="text-mode-input" ng-click="vm.open($event)">' + display + '</span>';
           }
         }
 
         if ($attr.dtDialog === undefined) {
-          template += '<div dt-id="' + random + '" ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper">' + NG_DATETIME_TEMPLATE + '</div>';
+          template += '<div dt-id="' + random + '" ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper">' + 
+            NG_DATETIME_TEMPLATE + '</div>';
         }
 
         $element.attr('dt-id', random);
@@ -128,18 +111,6 @@
         vm.closeCalendarPanel();
         $scope.$digest();
       });
-
-      vm.save = function (startChoice, endChoice, choice) {
-        vm.startChoice = startChoice;
-        vm.endChoice = endChoice;
-        vm.choice = choice;
-        vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
-        vm.closeCalendarPanel();
-      };
-
-      vm.cancel = function () {
-        vm.closeCalendarPanel();
-      };
 
       vm.openCalendarPanel = function (event) {
         if (!vm.isPanelLoading) {
@@ -243,6 +214,26 @@
           vm.choice = data.choice;
           vm.dtConfirm(data);
         });
+      };
+
+      vm.open = function(ev) {
+        if(vm.isDtDialog) {
+          vm.showDatatimePickerDialog(ev);
+        } else {
+          vm.openCalendarPanel(ev);
+        }
+      };
+
+      vm.save = function (startChoice, endChoice, choice) {
+        vm.startChoice = startChoice;
+        vm.endChoice = endChoice;
+        vm.choice = choice;
+        vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
+        vm.closeCalendarPanel();
+      };
+
+      vm.cancel = function () {
+        vm.closeCalendarPanel();
       };
     }
   }
