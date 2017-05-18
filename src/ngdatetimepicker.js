@@ -1,4 +1,4 @@
-(function() {
+(function () {
   'use strict';
 
   angular.module('ngDatetimePicker', ['ngDatetime'])
@@ -34,19 +34,19 @@
         maxLength: '@',
         minLength: '@'
       },
-      template: function($element, $attr) {
+      template: function ($element, $attr) {
         var template;
         var display = '{{ startChoice }}&nbsp;&nbsp;~&nbsp;&nbsp;{{ endChoice }}';
         if ($attr.dtText === undefined) { // button mode
           if ($attr.choice) {
             template = [
-              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="$mdOpenMenu($event)">',
+              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="vm.openCalendarPanel($event)">',
               ' {{ choice }}',
               '</md-button>'
             ].join(' ');
           } else {
             template = [
-              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="$mdOpenMenu($event)">',
+              '<md-button class="md-raised md-primary no-margin time-picker-switch" ng-click="vm.openCalendarPanel($event)">',
               display,
               '</md-button>'
             ].join(' ');
@@ -70,16 +70,16 @@
         }
 
         if ($attr.dtDialog === undefined) {
-          template += '<md-menu-content><div class="ng-datetime-wrapper ng-datetime-inline">' + NG_DATETIME_TEMPLATE + '</div></md-menu-content>';
+          template += '<div ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper ng-datetime-inline">' + NG_DATETIME_TEMPLATE + '</div>';
         }
 
-        return '<md-menu>' + template + '</md-menu>';
+        return template;
       },
-      controller: ['$scope', '$element', '$attrs', '$document', '$mdUtil', '$mdDialog', NgDatetimePickerCtrl],
+      controller: ['$scope', '$element', '$attrs', '$document', '$timeout', '$mdDialog', NgDatetimePickerCtrl],
       controllerAs: 'vm'
     };
 
-    function NgDatetimePickerCtrl($scope, $element, $attrs, $document, $mdUtil, $mdDialog) {
+    function NgDatetimePickerCtrl($scope, $element, $attrs, $document, $timeout, $mdDialog) {
       var vm = this;
       vm.isRange = !$scope.choice;
       vm.isDtDialog = $attrs.dtDialog !== undefined;
@@ -97,16 +97,19 @@
       vm.dtConfirm = typeof $scope.dtConfirm === 'function' ? $scope.dtConfirm : angular.noop;
       vm.dtCancel = typeof $scope.dtCancel === 'function' ? $scope.dtCancel : angular.noop;
 
-      $element.on('click', function(event) {
+      vm.isPanelLoading = false;
+      vm.isPanelOpen = false;
+
+      $element.on('click', function (event) {
         event.stopPropagation();
       });
 
-      $document.on('click', function(event) {
-        vm.isCalendarOpen = false;
+      $document.on('click', function (event) {
+        vm.closeCalendarPanel();
         $scope.$digest();
       });
 
-      vm.save = function(startChoice, endChoice, choice) {
+      vm.save = function (startChoice, endChoice, choice) {
         vm.startChoice = startChoice;
         vm.endChoice = endChoice;
         vm.choice = choice;
@@ -114,113 +117,56 @@
         vm.closeCalendarPanel();
       };
 
-      if (!vm.isDtDialog) { //判断是否对话框显示模式
-        vm.$mdUtil = $mdUtil;
+      vm.cancel = function () {
+        vm.closeCalendarPanel();
+      };
 
-        vm.isCalendarOpen = false;
-        vm.switchElement = $element[0].querySelector('.time-picker-switch');
-        vm.calendarPane = $element[0].querySelector('.ng-datetime-inline');
+      vm.openCalendarPanel = function (event) {
+        if (!vm.isPanelLoading) {
+          vm.isPanelLoading = true;
+          vm.calcPosition($element);
+        } else {
+          vm.isPanelOpen = !vm.isPanelOpen;          
+        }
+      };
 
-        vm.cancel = function() {
-          vm.closeCalendarPanel();
-        };
+      vm.closeCalendarPanel = function () {
+        vm.isPanelOpen = false;
+      };
 
-        vm.openCalendarPanel = function(event, $mdMenu) {
-          vm.isCalendarOpen = !vm.isCalendarOpen;
-          $mdMenu.open(event);
-          if(vm.isCalendarOpen) {
-            calcPosition($element);
-          }
-        };
+      vm.calcPosition = function (element) {
+        var elePositionRect = { left: 0, right: 0, width: 0, top: 0, bottom: 0, height: 0 };
+        var docWidth = $document[0].body.offsetWidth;
+        var docHeight = $document[0].body.offsetHeight;
+        if(element[0] && typeof element[0].getBoundingClientRect === 'function') {
+          elePositionRect = element[0].getBoundingClientRect();
+        }
 
-        vm.closeCalendarPanel = function() {
-          vm.isCalendarOpen = false;
-        };
+        console.log(elePositionRect);
 
-        vm.attachCalendarPane = function() {
-          //计算内联显示时的显示位置
-          var CALENDAR_PANE_MIN_WIDTH = 300;
-          var CALENDAR_PANE_MIN_HEIGHT = 350;
-          var calendarPane = vm.calendarPane;
-          var body = document.body;
+        $timeout(function() {
+          var datetimeEle = element.find('ng-datetime');
+          var datetimeEleWidth = 0;
+          var datetimeEleHeight = 0;
 
-          calendarPane.style.transform = '';
+          if(datetimeEle[0]) {
+            datetimeEleWidth = datetimeEle[0].offsetWidth;
+            datetimeEleHeight = datetimeEle[0].offsetHeight;
 
-          var elementRect = vm.switchElement.getBoundingClientRect();
-          var bodyRect = body.getBoundingClientRect();
+            if(docWidth - elePositionRect.left < datetimeEleWidth && elePositionRect.right >= datetimeEleWidth) {
+              datetimeEle.parent().css({ left: 'initial', right: 0 });
+            }
 
-          var topMargin = 3;
-          var bottomMargin = 3;
-          var leftMargin = 0;
-          var rightMargin = 0;
-          var heightBias = 0;
-
-          if (typeof($attrs.dtText) != 'undefined') {
-            heightBias = 12;
-          }
-
-          var paneTop = elementRect.top - bodyRect.top + elementRect.height + topMargin - heightBias; //上边停靠
-          var paneLeft = elementRect.left - bodyRect.left + leftMargin; //左边对齐
-          var panelBottom = bodyRect.bottom - elementRect.top + bottomMargin - heightBias; //底边停靠 
-          var paneRight = bodyRect.right - elementRect.right + rightMargin; //右边对齐
-
-          var alignX = 'left';
-          var alignY = 'top';
-
-          var viewportTop = (bodyRect.top < 0 && document.body.scrollTop == 0) ?
-            -bodyRect.top :
-            document.body.scrollTop;
-
-          var viewportLeft = (bodyRect.left < 0 && document.body.scrollLeft == 0) ?
-            -bodyRect.left :
-            document.body.scrollLeft;
-
-          var viewportBottom = viewportTop + vm.$window.innerHeight;
-          var viewportRight = viewportLeft + vm.$window.innerWidth;
-
-          if ((paneLeft + bodyRect.left + viewportLeft + CALENDAR_PANE_MIN_WIDTH) > viewportRight &&
-            (bodyRect.right - paneRight - CALENDAR_PANE_MIN_WIDTH) > 0) {
-            alignX = 'right';
+            if(docHeight - elePositionRect.bottom < datetimeEleHeight && elePositionRect.top >= datetimeEleHeight) {
+              datetimeEle.parent().css({ bottom: '100%', top: 'initial' });
+            }
           }
 
-          if ((paneTop + bodyRect.top + viewportTop + CALENDAR_PANE_MIN_HEIGHT) > viewportBottom &&
-            (bodyRect.bottom - panelBottom - CALENDAR_PANE_MIN_HEIGHT) > 0) {
-            alignY = 'bottom';
-          }
-
-          calendarPane.style.display = 'block';
-          calendarPane.style.position = "absolute";
-          if (alignX === 'left') {
-            calendarPane.style.right = 'auto';
-            calendarPane.style.left = paneLeft + 'px';
-          } else {
-            calendarPane.style.right = paneRight + 'px';
-            calendarPane.style.left = 'auto';
-          }
-          if (alignY === 'top') {
-            calendarPane.style.top = paneTop + 'px';
-            calendarPane.style.bottom = 'auto';
-          } else {
-            calendarPane.style.top = 'auto';
-            calendarPane.style.bottom = panelBottom + 'px';
-          }
-
-          calendarPane.style.zIndex = "90";
-          document.body.appendChild(calendarPane);
-        };
-
-        vm.detachCalendarPane = function() {
-          if (vm.isCalendarOpen) {
-            //vm.$mdUtil.enableScrolling();
-          }
-
-          if (vm.calendarPane.parentNode) {
-            vm.calendarPane.parentNode.removeChild(vm.calendarPane);
-          }
-        };
+          vm.isPanelOpen = true;
+        });
       }
 
-      vm.showDatatimePickerDialog = function(ev) {
+      vm.showDatatimePickerDialog = function (ev) {
         $mdDialog.show({
           controller: ['$mdDialog', 'resolveData', DialogController],
           controllerAs: 'vm',
@@ -232,11 +178,11 @@
           targetEvent: ev,
           transclude: true,
           resolve: {
-            resolveData: function() {
+            resolveData: function () {
               return vm;
             }
           }
-        }).then(function(data) {
+        }).then(function (data) {
           vm.startChoice = data.startChoice;
           vm.endChoice = data.endChoice;
           vm.choice = data.choice;
@@ -246,26 +192,15 @@
     }
   }
 
-  function calcPosition(element) {
-    var elePositionRect = element[0].getBoundingClientRect();
-    // if(elePositionRect)
-    console.log(element[0].getBoundingClientRect());
-
-    var ngDt = element.find('div');
-    console.log(ngDt);
-    console.log(ngDt[1].offsetWidth);
-    console.log(ngDt[1].offsetHeight);
-  }
-
   function DialogController($mdDialog, resolveData) {
     var vm = this;
 
     angular.extend(vm, resolveData);
-    vm.save = function(startChoice, endChoice, choice) {
+    vm.save = function (startChoice, endChoice, choice) {
       $mdDialog.hide({ startChoice: startChoice, endChoice: endChoice, choice: choice });
     };
 
-    vm.cancel = function() {
+    vm.cancel = function () {
       $mdDialog.cancel();
     };
   }

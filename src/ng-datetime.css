@@ -1,7 +1,6 @@
-.ng-datetime {
+ng-datetime, .ng-datetime {
   background: white;
   border-radius: 4px;
-  box-shadow: 0px 0px 5px 2px #ddd;
   display: inline-block;
 }
 
@@ -154,7 +153,19 @@ ng-datetime-picker {
 }
 
 ng-datetime-picker .ng-datetime-wrapper {
-  /* position: absolute; */
+  /*transition: all 0.35s;*/
+  border-radius: 4px;
+  box-shadow: 0px 0px 15px 0px #aaa;
+  left: 0;
+  margin: 5px 0;
+  position: absolute;
+  top: 100%;
+  transform: scale3d(0, 0, 0);
+  transform-origin: left top;
+}
+
+ng-datetime-picker .ng-datetime-wrapper.open {
+  transform: scale3d(1, 1, 1);
 }
 
 ng-datetime-picker .text-mode-input {

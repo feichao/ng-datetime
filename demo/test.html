@@ -9,12 +9,13 @@
   <style>
     .wrapper {
       overflow: hidden;
-      padding: 10px 0 30px 0;
-      text-align: center;
+      padding: 10px 20px 30px 20px;
+      padding-bottom: 500px;
+      text-align: right;
     }
 
     .wrapper:nth-child(odd) {
-      background: rgba(57, 73, 171, 0.05);
+      /*background: rgba(57, 73, 171, 0.05);*/
       border-radius: 5px;
     }
   </style>
@@ -48,7 +49,7 @@
       <h4>You select: {{ startTime }} to {{ endTime }}</h4>
       <ng-datetime-picker dt-type="time-range" start-choice="startTime" end-choice="endTime" dt-confirm="confirm(startChoice, endChoice)"></ng-datetime-picker>
     </div>-->
-    <div class="wrapper" style="height: 800px;">
+    <div class="wrapper">
       <h3>Datetime-Range Picker with quick-select</h3>
       <h4>You select: {{ startDatetime }} to {{ endDatetime }}</h4>
       <ng-datetime-picker dt-type="datetime-range" start-choice="startDatetime" end-choice="endDatetime" dt-confirm="confirm(startChoice, endChoice)" dt-q-select="qSelectRange"></ng-datetime-picker>
