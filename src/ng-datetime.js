@@ -144,7 +144,7 @@
     '    </tr>',
     // times
     '    <tr class="time-picker" ng-if="picker.isShowTimePicker">',
-    '      <td></td>',
+    // '      <td></td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusHour(picker)">',
     '          <ng-md-icon size="24" aria-label="left" icon="keyboard_arrow_left"></ng-md-icon>',
@@ -381,7 +381,7 @@
       $scope.isDiaplayBlock = $scope.dtType === DATE_TYPE.TIME_RANGE || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
 
       $scope.setDate = function(picker, dayInfo) {
-        $scope.setPickerDatetimeInfo(picker, dayInfo.datetime);
+        $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).date(dayInfo.day));
       };
 
       $scope.setPickerDatetimeInfo = function(picker, newDt) {
