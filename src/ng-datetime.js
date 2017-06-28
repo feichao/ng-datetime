@@ -381,21 +381,22 @@
       $scope.isDiaplayBlock = $scope.dtType === DATE_TYPE.TIME_RANGE || $scope.dtType === DATE_TYPE.DATE_TIMERANGE;
 
       $scope.setDate = function(picker, dayInfo) {
-        $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).date(dayInfo.day));
+        $scope.setPickerDatetimeInfo(picker, dayInfo.datetime);
       };
 
       $scope.setPickerDatetimeInfo = function(picker, newDt) {
         var picker0 = $scope.pickers[0];
         var picker1 = $scope.pickers[1];
         var pickerIndex = $scope.pickers.indexOf(picker);
-
         var pMoment = moment(picker.datetime);
 
         // console.log(picker.datetime + ' : ' + newDt.format(DATETIME_DEFAULT_FORMAT));
 
-        if (pMoment.format('YYYY') !== newDt.format('YYYY') || pMoment.format('MM') !== newDt.format('MM')) {
+        if (pMoment.format('YYYY') !== newDt.format('YYYY') ||
+          pMoment.format('MM') !== newDt.format('MM')) {
           picker.days = calcDays($scope, newDt);
         } else if (pMoment.format('DD') !== newDt.format('DD')) {
+          setCalendarDayTime(picker, newDt);
           if ($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
             unSelectDay(picker0, pMoment);
             selectDay(picker0, newDt);
@@ -403,6 +404,10 @@
             unSelectDay(picker, pMoment);
             selectDay(picker, newDt);
           }
+        } else if (pMoment.format('HH') !== newDt.format('HH') ||
+          pMoment.format('mm') !== newDt.format('mm') ||
+          pMoment.format('ss') !== newDt.format('ss')) {
+          setCalendarDayTime(picker, newDt);
         }
 
         if ($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
@@ -713,6 +718,25 @@
 
         // get day style after all status determines 
         dayInfo.dayClass = getDayClass(dayInfo);
+      }
+    }
+  }
+
+  /**
+   * set calendar day's time when new time selected.
+   * @param {object} picker 
+   * @param {moment} newDt 
+   * @param {string} format 
+   */
+  function setCalendarDayTime(picker, newDt) {
+    var days = picker.days;
+    for (var i = 0; i < days.length; i++) {
+      for (var j = 0; j < days[i].length; j++) {
+        var dayInfo = days[i][j];
+        var datetime = dayInfo.datetime;
+        datetime.set('hour', newDt.get('hour'));
+        datetime.set('minute', newDt.get('minute'));
+        datetime.set('second', newDt.get('second'));
       }
     }
   }
