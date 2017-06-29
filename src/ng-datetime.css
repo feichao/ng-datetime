@@ -1,4 +1,5 @@
-ng-datetime, .ng-datetime {
+ng-datetime,
+.ng-datetime {
   background: white;
   border-radius: 4px;
   display: inline-block;
@@ -53,14 +54,14 @@ ng-datetime, .ng-datetime {
 .date-picker .md-button {
   border-radius: 50%;
   height: 34px;
-  margin: 0 2px;
+  margin: 0;
   min-height: 34px;
   padding: 0;
   width: 34px;
 }
 
 .date-picker .md-button.normal-day:hover {
-  background: #efefef;
+  background: #f0f0f0;
 }
 
 .date-picker .md-button[disabled] {
@@ -82,6 +83,24 @@ ng-datetime, .ng-datetime {
 
 .date-picker .md-button.not-in-month[disabled] {
   opacity: 1;
+}
+
+.date-picker tr {
+  border: 1px solid white;
+}
+
+.date-picker .first-range-day.in-range {
+  border-radius: 50% 0 0 50%;
+}
+
+.date-picker .last-range-day.in-range {
+  border-radius: 0 50% 50% 0;
+}
+
+.date-picker .first-range-day.in-range,
+.date-picker .last-range-day.in-range,
+.date-picker .in-range {
+  background: #e3e3e3;
 }
 
 .week-header td {
@@ -144,7 +163,9 @@ md-menu-content.flex-menu-content.minute-menu-content {
   top: 0;
 }
 
+
 /*** picker ***/
+
 .no-margin {
   margin: 0 !important;
 }

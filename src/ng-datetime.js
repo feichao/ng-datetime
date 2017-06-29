@@ -3,80 +3,80 @@
 
   var moment = moment || window.moment;
 
-  if (moment && moment.fn) {
-    if (!moment.addSeconds) {
+  if(moment && moment.fn) {
+    if(!moment.addSeconds) {
       moment.fn.addSeconds = function(num) {
         return this.add(num, 'seconds');
       };
     }
 
-    if (!moment.addMinutes) {
+    if(!moment.addMinutes) {
       moment.fn.addMinutes = function(num) {
         return this.add(num, 'minutes');
       };
     }
 
-    if (!moment.addHours) {
+    if(!moment.addHours) {
       moment.fn.addHours = function(num) {
         return this.add(num, 'hours');
       };
     }
 
-    if (!moment.addDays) {
+    if(!moment.addDays) {
       moment.fn.addDays = function(num) {
         return this.add(num, 'days');
       };
     }
 
-    if (!moment.addMonths) {
+    if(!moment.addMonths) {
       moment.fn.addMonths = function(num) {
         return this.add(num, 'months');
       };
     }
 
-    if (!moment.addYears) {
+    if(!moment.addYears) {
       moment.fn.addYears = function(num) {
         return this.add(num, 'years');
       };
     }
 
-    if (!moment.subtractSeconds) {
+    if(!moment.subtractSeconds) {
       moment.fn.subtractSeconds = function(num) {
         return this.subtract(num, 'seconds');
       };
     }
 
-    if (!moment.subtractMinutes) {
+    if(!moment.subtractMinutes) {
       moment.fn.subtractMinutes = function(num) {
         return this.subtract(num, 'minutes');
       };
     }
 
-    if (!moment.subtractHours) {
+    if(!moment.subtractHours) {
       moment.fn.subtractHours = function(num) {
         return this.subtract(num, 'hours');
       };
     }
 
-    if (!moment.subtractDays) {
+    if(!moment.subtractDays) {
       moment.fn.subtractDays = function(num) {
         return this.subtract(num, 'days');
       };
     }
 
-    if (!moment.subtractMonths) {
+    if(!moment.subtractMonths) {
       moment.fn.subtractMonths = function(num) {
         return this.subtract(num, 'months');
       };
     }
 
-    if (!moment.subtractYears) {
+    if(!moment.subtractYears) {
       moment.fn.subtractYears = function(num) {
         return this.subtract(num, 'years');
       };
     }
 
-    if (!moment.diffDays) {
+    if(!moment.diffDays) {
       moment.fn.diffDays = function(m) {
         return this.diff(moment(m), 'days');
       };
@@ -135,7 +135,7 @@
     '    </tr>',
     // days 
     '    <tr ng-repeat="row in picker.days" ng-if="picker.isShowDatePicker">',
-    '      <td ng-repeat="dayInfo in row track by $index">',
+    '      <td ng-repeat="dayInfo in row track by $index" class="{{ dayInfo.dayParentClass }}">',
     '        <md-button class="md-icon-button md-mini {{ dayInfo.dayClass }}" ng-click="setDate(picker, dayInfo)" ',
     '           ng-disabled="dayInfo.isDisabled">',
     '          {{ ::dayInfo.day }}',
@@ -289,7 +289,7 @@
 
   function ngDatetimeCompile(tElement, tAttr) {
     return function($scope, element, attr) {
-      if (typeof moment !== 'function' || !moment.fn) {
+      if(typeof moment !== 'function' || !moment.fn) {
         console.log('cant find momentjs lib');
         return;
       }
@@ -299,14 +299,14 @@
       $scope.minutes = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
 
       $scope.staticString = STATIC_STRING['cn'];
-      if (attr.dtLanguage) {
+      if(attr.dtLanguage) {
         $scope.dtLanguage = $scope.dtLanguage || attr.dtLanguage || 'cn';
-        if ($scope.dtLanguage === 'en') {
+        if($scope.dtLanguage === 'en') {
           $scope.staticString = STATIC_STRING['en'];
-        } else if ($scope.dtLanguage === 'cn') {
+        } else if($scope.dtLanguage === 'cn') {
           $scope.staticString = STATIC_STRING['cn'];
         } else {
-          if (typeof $scope.dtLanguage === 'string') {
+          if(typeof $scope.dtLanguage === 'string') {
             $scope.staticString = STATIC_STRING['cn'];
           } else {
             $scope.staticString = angular.extend({}, STATIC_STRING['cn'], $scope.dtLanguage);
@@ -317,7 +317,7 @@
       $scope.init = function() {
         $scope.maxDate = $scope.max ? moment($scope.max, $scope.format) : undefined;
         $scope.minDate = $scope.min ? moment($scope.min, $scope.format) : undefined;
-        switch ($scope.dtType) {
+        switch($scope.dtType) {
           case DATE_TYPE.DATE:
           default:
             $scope.dtType = DATE_TYPE.DATE; // default
@@ -364,9 +364,9 @@
           minuteNum: mDatetime.format('mm')
         };
 
-        if ($scope.isDateRange) {
+        if($scope.isDateRange) {
           setDaysDisabledStatus(result, $scope.format, true, pickerIndex, $scope.minDate, $scope.maxDate, moment($scope.startChoice, $scope.format), moment($scope.endChoice, $scope.format), $scope.minLength, $scope.maxLength);
-        } else if ($scope.minDate || $scope.maxDate) {
+        } else if($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(result, $scope.format, false, pickerIndex, $scope.minDate, $scope.maxDate);
         } else {
           getDaysClass(result);
@@ -392,25 +392,25 @@
 
         // console.log(picker.datetime + ' : ' + newDt.format(DATETIME_DEFAULT_FORMAT));
 
-        if (pMoment.format('YYYY') !== newDt.format('YYYY') ||
+        if(pMoment.format('YYYY') !== newDt.format('YYYY') ||
           pMoment.format('MM') !== newDt.format('MM')) {
           picker.days = calcDays($scope, newDt);
-        } else if (pMoment.format('DD') !== newDt.format('DD')) {
+        } else if(pMoment.format('DD') !== newDt.format('DD')) {
           setCalendarDayTime(picker, newDt);
-          if ($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
+          if($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
             unSelectDay(picker0, pMoment);
             selectDay(picker0, newDt);
           } else {
             unSelectDay(picker, pMoment);
             selectDay(picker, newDt);
           }
-        } else if (pMoment.format('HH') !== newDt.format('HH') ||
+        } else if(pMoment.format('HH') !== newDt.format('HH') ||
           pMoment.format('mm') !== newDt.format('mm') ||
           pMoment.format('ss') !== newDt.format('ss')) {
           setCalendarDayTime(picker, newDt);
         }
 
-        if ($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
+        if($scope.dtType === DATE_TYPE.DATE_TIMERANGE) { // date-timerange
           picker0.yearNum = picker1.yearNum = newDt.format('YYYY');
           picker0.monthNum = picker1.monthNum = newDt.format('MM');
           picker0.datetime = newDt.format(DATE_DEFAULT_FORMAT) + ' ' + moment(picker0.datetime).format(TIME_DEFAULT_FORMAT);
@@ -425,12 +425,12 @@
         picker.minuteNum = newDt.format('mm');
 
         // until picker.datetime is assign
-        if ($scope.isDateRange) {
+        if($scope.isDateRange) {
           var picker0Dt = moment($scope.pickers[0].datetime, $scope.format);
           var picker1Dt = moment($scope.pickers[1].datetime, $scope.format);
           setDaysDisabledStatus($scope.pickers[0], $scope.format, true, 0, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
           setDaysDisabledStatus($scope.pickers[1], $scope.format, true, 1, $scope.minDate, $scope.maxDate, picker0Dt, picker1Dt, $scope.minLength, $scope.maxLength);
-        } else if ($scope.minDate || $scope.maxDate) {
+        } else if($scope.minDate || $scope.maxDate) {
           setDaysDisabledStatus(picker, $scope.format, false, 0, $scope.minDate, $scope.maxDate);
         } else {
           getDaysClass(picker);
@@ -438,7 +438,7 @@
       };
 
       $scope.qSelect = function(seconds, picker) {
-        if (angular.isArray(seconds) && $scope.isRange) {
+        if(angular.isArray(seconds) && $scope.isRange) {
           $scope.qSelect(seconds[0], $scope.pickers[0]);
           $scope.qSelect(seconds[1], $scope.pickers[1]);
           return;
@@ -454,14 +454,14 @@
         //   return;
         // }
 
-        if (picker) {
+        if(picker) {
           $scope._setToday(picker);
           $scope.minusSeconds(picker, seconds);
           return;
         }
 
         var pickerTmp;
-        if (dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
+        if(dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
           pickerTmp = $scope.pickers[0];
           $scope._setToday(pickerTmp);
           $scope.minusSeconds(pickerTmp, seconds);
@@ -473,7 +473,7 @@
       };
 
       $scope._setToday = function(picker) {
-        if (picker) {
+        if(picker) {
           $scope.setPickerDatetimeInfo(picker, moment());
         }
       };
@@ -529,15 +529,15 @@
           $scope._setToday($scope.pickers[0]);
         },
         cancel: function() {
-          if (typeof $scope.dtCancel === 'function') {
+          if(typeof $scope.dtCancel === 'function') {
             $scope.dtCancel();
           }
         },
         confirm: function() {
           var picker0 = $scope.pickers[0];
           var picker1 = $scope.pickers[1];
-          if (typeof $scope.dtConfirm === 'function') {
-            if (picker0 && picker1) {
+          if(typeof $scope.dtConfirm === 'function') {
+            if(picker0 && picker1) {
               $scope.startChoice = moment(picker0.datetime).format($scope.format);
               $scope.endChoice = moment(picker1.datetime).format($scope.format);
               $scope.dtConfirm({ startChoice: $scope.startChoice, endChoice: $scope.endChoice });
@@ -569,23 +569,23 @@
     var firstDay = moment(datetime).subtractDays(datetimeMoment.format('DD') - 1);
     var firstDayWeekDay = firstDay.weekday();
 
-    for (var i = 0; i < dayLength; i++) {
+    for(var i = 0; i < dayLength; i++) {
       var index = i + firstDayWeekDay;
       days[index] = setDay(scope, datetimeMoment, firstDay, index, i, true);
     }
 
-    for (var j = 1; j <= firstDayWeekDay; j++) {
+    for(var j = 1; j <= firstDayWeekDay; j++) {
       var index = firstDayWeekDay - j;
       days[index] = setDay(scope, datetimeMoment, firstDay, index, -j, false);
     }
 
-    for (var k = dayLength; k < 42; k++) {
+    for(var k = dayLength; k < 42; k++) {
       var index = firstDayWeekDay + k;
       days[index] = setDay(scope, datetimeMoment, firstDay, index, k, false);
     }
 
     var result = [];
-    for (var l = 0; l < 6; l++) {
+    for(var l = 0; l < 6; l++) {
       result.push(days.slice(l * 7, (l + 1) * 7));
     }
 
@@ -622,8 +622,8 @@
 
   function getDaysClass(picker) {
     var days = picker.days || [];
-    for (var i = 0; i < days.length; i++) {
-      for (var j = 0; j < days[i].length; j++) {
+    for(var i = 0; i < days.length; i++) {
+      for(var j = 0; j < days[i].length; j++) {
         days[i][j].dayClass = getDayClass(days[i][j]);
       }
     }
@@ -636,24 +636,48 @@
    */
   function getDayClass(dayInfo) {
     var classCollection = [];
-    if (!dayInfo.isDisabled) {
+    if(!dayInfo.isDisabled) {
       classCollection.push('normal-day');
     }
 
-    if (dayInfo.isWeekEnd && !dayInfo.isToday) {
+    if(dayInfo.isWeekEnd && !dayInfo.isToday) {
       classCollection.push('md-warn');
     }
 
-    if (dayInfo.isToday) {
+    if(dayInfo.isToday) {
       classCollection.push('md-primary today');
     }
 
-    if (dayInfo.isSelected) {
+    if(dayInfo.isSelected) {
       classCollection.push('md-primary md-raised selected');
     }
 
-    if (!dayInfo.isInMonth) {
+    if(!dayInfo.isInMonth) {
       classCollection.push('not-in-month');
+    }
+
+    return ' ' + classCollection.join(' ') + ' ';
+  }
+
+  function getDayParentClass(dayInfo, isRange, picker0Dt, picker1Dt) {
+    var classCollection = [];
+    if(isRange) {
+      var d0 = moment(moment(dayInfo.datetime).format(DATE_DEFAULT_FORMAT));
+      var d1 = moment(picker0Dt.format(DATE_DEFAULT_FORMAT));
+      var d2 = moment(picker1Dt.format(DATE_DEFAULT_FORMAT));
+      if(d1.isSame(d2)) {
+        return '';
+      }
+
+      if(d0.isSameOrAfter(d1) && d0.isSameOrBefore(d2)) {
+        classCollection.push('in-range');
+      }
+      if(d0.isSame(d1)) {
+        classCollection.push('first-range-day');
+      }
+      if(d0.isSame(d2)) {
+        classCollection.push('last-range-day');
+      }
     }
 
     return ' ' + classCollection.join(' ') + ' ';
@@ -670,9 +694,9 @@
   function toggleSelect(picker, dayM, isSelected) {
     var dd = dayM.format('DD');
     var days = picker && picker.days || [];
-    for (var i = 0; i < days.length; i++) {
-      for (var j = 0; j < days[i].length; j++) {
-        if (days[i][j].day === dd && days[i][j].isInMonth) {
+    for(var i = 0; i < days.length; i++) {
+      for(var j = 0; j < days[i].length; j++) {
+        if(days[i][j].day === dd && days[i][j].isInMonth) {
           days[i][j].isSelected = isSelected;
           return;
         }
@@ -684,40 +708,41 @@
   function setDaysDisabledStatus(picker, format, isDateRange, currentPickerIndex, minDate, maxDate, picker0Dt, picker1Dt, minLength, maxLength) {
     var days = picker.days;
     picker.isInvalid = false;
-    for (var i = 0; i < days.length; i++) {
-      for (var j = 0; j < days[i].length; j++) {
+    for(var i = 0; i < days.length; i++) {
+      for(var j = 0; j < days[i].length; j++) {
         var dayInfo = days[i][j];
         var datetime = moment(dayInfo.datetime.format(format));
         dayInfo.isDisabled = false;
-        if (maxDate && datetime.isAfter(maxDate) || minDate && datetime.isBefore(minDate)) {
+        if(maxDate && datetime.isAfter(maxDate) || minDate && datetime.isBefore(minDate)) {
           dayInfo.isDisabled = true;
         }
 
-        if (isDateRange) {
-          if (currentPickerIndex === 0 && datetime.isAfter(picker1Dt) || currentPickerIndex === 1 && datetime.isBefore(picker0Dt)) {
+        if(isDateRange) {
+          if(currentPickerIndex === 0 && datetime.isAfter(picker1Dt) || currentPickerIndex === 1 && datetime.isBefore(picker0Dt)) {
             dayInfo.isDisabled = true;
           }
 
-          if (minLength > 0) {
-            if (currentPickerIndex === 0 && picker1Dt.diffDays(datetime) < minLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) < minLength) {
+          if(minLength > 0) {
+            if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) < minLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) < minLength) {
               dayInfo.isDisabled = true;
             }
           }
 
-          if (maxLength > 0) {
-            if (currentPickerIndex === 0 && picker1Dt.diffDays(datetime) > maxLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) > maxLength) {
+          if(maxLength > 0) {
+            if(currentPickerIndex === 0 && picker1Dt.diffDays(datetime) > maxLength || currentPickerIndex === 1 && datetime.diffDays(picker0Dt) > maxLength) {
               dayInfo.isDisabled = true;
             }
           }
         }
 
         // check if the picker datetime is disabled
-        if (dayInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === dayInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
+        if(dayInfo.isDisabled && moment(picker.datetime).format(DATE_DEFAULT_FORMAT) === dayInfo.datetime.format(DATE_DEFAULT_FORMAT)) {
           picker.isInvalid = true;
         }
 
         // get day style after all status determines 
         dayInfo.dayClass = getDayClass(dayInfo);
+        dayInfo.dayParentClass = getDayParentClass(dayInfo, isDateRange, picker0Dt, picker1Dt);
       }
     }
   }
@@ -730,8 +755,8 @@
    */
   function setCalendarDayTime(picker, newDt) {
     var days = picker.days;
-    for (var i = 0; i < days.length; i++) {
-      for (var j = 0; j < days[i].length; j++) {
+    for(var i = 0; i < days.length; i++) {
+      for(var j = 0; j < days[i].length; j++) {
         var dayInfo = days[i][j];
         var datetime = dayInfo.datetime;
         datetime.set('hour', newDt.get('hour'));
