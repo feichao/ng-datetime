@@ -100,7 +100,7 @@ ng-datetime,
 .date-picker .first-range-day.in-range,
 .date-picker .last-range-day.in-range,
 .date-picker .in-range {
-  background: #e3e3e3;
+  background: #f5f5f5;
 }
 
 .week-header td {
