@@ -10,18 +10,22 @@
  
  1. use it with inner ngDatetimePicker
   > angular.module('YourApp', ['ngMaterial', 'ngMdIcons', 'ngDatetimePicker'])
-    After inject ngDatetimePicker, you can use it like below in your template:
+  
+  > After inject ngDatetimePicker, you can use it like below in your template:
     ```
     <ng-datetime-picker dt-dialog dt-text ...></ng-datetime-picker>
     ```
+    
   > please check demo/demo-picker.html
  
  2. use it direct
   > angular.module('YourApp', ['ngMaterial', 'ngMdIcons', 'ngDatetime']);
-    After inject ngDatetime, you can use it like below in your template:
+  
+  > After inject ngDatetime, you can use it like below in your template:
     ```
     <ng-datetime ...></ng-datetime>
     ```
+    
   > please check demo/demo.html
   
 ### what is the ngDatetimePicker directive
