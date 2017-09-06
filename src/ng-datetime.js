@@ -144,7 +144,6 @@
     '    </tr>',
     // times
     '    <tr class="time-picker" ng-if="picker.isShowTimePicker">',
-    // '      <td></td>',
     '      <td>',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="minusHour(picker)">',
     '          <ng-md-icon size="24" aria-label="left" icon="keyboard_arrow_left"></ng-md-icon>',
@@ -174,16 +173,26 @@
     '        <md-menu>',
     '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.minuteNum }}</md-button>',
     '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content minute-menu-content">',
-    '            <md-menu-item ng-repeat="minute in minutes">',
+    '            <md-menu-item ng-repeat="minute in minutesSeconds">',
     '              <md-button ng-click="setMinute(picker, minute, $event)">{{ minute }}</md-button>',
     '            </md-menu-item>',
     '          </md-menu-content>',
     '        </md-menu>',
     '      </td>',
-    '      <td>',
+    '      <td class="split-time">',
     '        <md-button class="md-primary md-icon-button md-mini" ng-click="addMinute(picker)">',
     '          <ng-md-icon size="24" aria-label="right" icon="keyboard_arrow_right"></ng-md-icon>',
     '        </md-button>',
+    '      </td>',
+    '      <td>',
+    '        <md-menu>',
+    '          <md-button class="md-icon-button md-mini" ng-click="$mdOpenMenu($event)"> {{ picker.secondNum }}</md-button>',
+    '          <md-menu-content layout="row" layout-align="space-between" layout-wrap class="flex-menu-content minute-menu-content">',
+    '            <md-menu-item ng-repeat="second in minutesSeconds">',
+    '              <md-button ng-click="setSecond(picker, second, $event)">{{ second }}</md-button>',
+    '            </md-menu-item>',
+    '          </md-menu-content>',
+    '        </md-menu>',
     '      </td>',
     '    </tr>',
     '  </tbody>',
@@ -296,7 +305,7 @@
 
       $scope.months = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
       $scope.hours = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'];
-      $scope.minutes = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
+      $scope.minutesSeconds = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59'];
 
       $scope.staticString = STATIC_STRING['cn'];
       if(attr.dtLanguage) {
@@ -361,7 +370,8 @@
           yearNum: mDatetime.format('YYYY'),
           monthNum: mDatetime.format('MM'),
           hourNum: mDatetime.format('HH'),
-          minuteNum: mDatetime.format('mm')
+          minuteNum: mDatetime.format('mm'),
+          secondNum: mDatetime.format('ss'),
         };
 
         if($scope.isDateRange) {
@@ -423,6 +433,7 @@
         picker.datetime = newDt.format(DATETIME_DEFAULT_FORMAT);
         picker.hourNum = newDt.format('HH');
         picker.minuteNum = newDt.format('mm');
+        picker.secondNum = newDt.format('ss');
 
         // until picker.datetime is assign
         if($scope.isDateRange) {
@@ -524,6 +535,10 @@
         setMinute: function(picker, minute, $event) {
           $event.stopPropagation();
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).minute(minute));
+        },
+        setSecond: function(picker, second, $event) {
+          $event.stopPropagation();
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).second(second));
         },
         setToday: function() {
           $scope._setToday($scope.pickers[0]);

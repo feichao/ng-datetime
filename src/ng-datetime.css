@@ -157,7 +157,7 @@ md-menu-content.flex-menu-content.minute-menu-content {
 
 .time-picker .split-time::after {
   content: ':';
-  line-height: 36px;
+  line-height: 32px;
   position: absolute;
   right: -2px;
   top: 0;
