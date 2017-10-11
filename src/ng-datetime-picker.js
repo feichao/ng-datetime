@@ -32,23 +32,24 @@
         max: '@',
         min: '@',
         maxLength: '@',
-        minLength: '@'
+        minLength: '@',
+        ngDisabled: '='
       },
-      template: function ($element, $attr) {
+      template: function($element, $attr) {
         var template;
         var random = (Math.random() + '').substr(2);
         var display = '{{ vm.startChoice }}&nbsp;~&nbsp;{{ vm.endChoice }}';
-        if ($attr.dtText === undefined) { // button mode
-          if ($attr.choice) {
-            template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">{{ vm.choice }}</md-button>';
+        if($attr.dtText === undefined) { // button mode
+          if($attr.choice) {
+            template = '<md-button class="md-raised md-primary no-margin" ng-disabled="vm.disabled" ng-click="vm.open($event)">{{ vm.choice }}</md-button>';
           } else {
-            template = '<md-button class="md-raised md-primary no-margin" ng-click="vm.open($event)">' + display + '</md-button>';
+            template = '<md-button class="md-raised md-primary no-margin" ng-disabled="vm.disabled" ng-click="vm.open($event)">' + display + '</md-button>';
           }
         } else { // text mode
-          if ($attr.choice) {
-            template = '<span class="text-mode-input" ng-click="vm.open($event)">{{ vm.choice }}</span>';
+          if($attr.choice) {
+            template = '<span class="text-mode-input" ng-class="vm.disabled?\'disabled\':\'\'" ng-click="vm.open($event)">{{ vm.choice }}</span>';
           } else {
-            template = '<span class="text-mode-input" ng-click="vm.open($event)">' + display + '</span>';
+            template = '<span class="text-mode-input" ng-class="vm.disabled?\'disabled\':\'\'" ng-click="vm.open($event)">' + display + '</span>';
           }
         }
 
@@ -82,6 +83,7 @@
       vm.min = $scope.min;
       vm.maxLength = $scope.maxLength;
       vm.minLength = $scope.minLength;
+      vm.disabled = !!$scope.ngDisabled;
       vm.startChoice = $scope.startChoice;
       vm.endChoice = $scope.endChoice;
       vm.choice = $scope.choice;
@@ -217,6 +219,10 @@
       };
 
       vm.open = function(ev) {
+        if(vm.disabled) {
+          return;
+        }
+
         if(vm.isDtDialog) {
           vm.showDatatimePickerDialog(ev);
         } else {

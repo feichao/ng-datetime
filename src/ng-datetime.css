@@ -183,6 +183,11 @@ ng-datetime-picker .text-mode-input {
   padding: 4px 2px;
 }
 
+ng-datetime-picker .text-mode-input.disabled {
+  cursor: auto !important;
+  color: rgba(0, 0, 0, 0.38);
+}
+
 .ng-datetime-wrapper {
   /*transition: all 0.35s;*/
   border-radius: 4px;
