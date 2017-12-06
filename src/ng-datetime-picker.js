@@ -6,7 +6,7 @@
 
   var NG_DATETIME_TEMPLATE = [
     '<ng-datetime dt-type="{{ vm.dtType }}" choice="vm.choice" start-choice="vm.startChoice" end-choice="vm.endChoice"',
-    ' max="{{ vm.max }}" min="{{ vm.min }}" max-length="{{ vm.maxLength }}" min-length="{{ vm.minLength }}"',
+    ' max="{{ vm.max }}" min="{{ vm.min }}" max-length="{{ vm.maxLength }}" min-length="{{ vm.minLength }}" restricts="vm.restricts"',
     ' dt-confirm="vm.save(startChoice, endChoice, choice)" dt-cancel="vm.cancel()" ',
     ' dt-q-select="vm.dtQSelect" dt-language="vm.dtLanguage"',
     '</ng-datetime>'
@@ -33,6 +33,8 @@
         min: '@',
         maxLength: '@',
         minLength: '@',
+
+        restricts: '=',
         ngDisabled: '='
       },
       template: function($element, $attr) {
@@ -83,6 +85,7 @@
       vm.min = $scope.min;
       vm.maxLength = $scope.maxLength;
       vm.minLength = $scope.minLength;
+      vm.restricts = $scope.restricts;
       vm.disabled = !!$scope.ngDisabled;
       vm.startChoice = $scope.startChoice;
       vm.endChoice = $scope.endChoice;

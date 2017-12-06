@@ -238,3 +238,10 @@ ng-datetime-picker .text-mode-input.disabled {
   -ms-transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
   -moz-transform: scale3d(1, 1, 1) translate3d(-50%, -50%, 0);
 }
+
+span.warn-text {
+  color: red;
+  margin-right: 50px;
+  margin-top: 10px;
+  font-weight: bold;
+}

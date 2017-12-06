@@ -81,6 +81,12 @@
         return this.diff(moment(m), 'days');
       };
     }
+
+    if(!moment.diffDays) {
+      moment.fn.diffSeconds = function(m) {
+        return this.diff(moment(m), 'seconds');
+      };
+    }
   }
 
   var TEMPLATE_QUICK_SELECT = [
@@ -204,6 +210,7 @@
     '<div layout="row" class="actions">',
     '  <md-button class="md-raised" ng-click="setToday()" ng-if="isSetToday">{{ staticString.today }}</md-button>',
     '  <span flex></span>',
+    '  <span ng-if="restrictsActive" class="warn-text">{{ restrictTips }}</span>',
     '  <md-button class="md-warn md-raised" ng-click="cancel()">{{ staticString.cancel }}</md-button>',
     '  <md-button class="md-primary md-raised" ng-click="confirm()" ng-disabled="isDatetimeInvalid()">{{ staticString.confirm }}</md-button>',
     '</div>'
@@ -280,6 +287,20 @@
         maxLength: '@',
         minLength: '@',
 
+        // custom restricts. if the restrict condition actived, just show custom messages and disable confirm button.
+        // it suports 'max-interval' and 'min-interval' in current version.
+        // example for use: 
+        // restricts: [{
+        //   name: 'max-interval',
+        //   intervalSeconds: 24 * 60 * 60, 
+        //   message: 'time inveral must less than 24 hours'
+        // }, {
+        //   name: 'min-interval',
+        //   intervalSeconds: 5 * 60, 
+        //   message: 'time inveral must more than 5 minutes'
+        // }],
+        restricts: '=',
+
         // language
         dtLanguage: '='
       },
@@ -324,6 +345,8 @@
       }
 
       $scope.init = function() {
+        $scope.restrictsActive = false;
+        $scope.restrictTips = '';
         $scope.maxDate = $scope.max ? moment($scope.max, $scope.format) : undefined;
         $scope.minDate = $scope.min ? moment($scope.min, $scope.format) : undefined;
         switch($scope.dtType) {
@@ -399,8 +422,6 @@
         var picker1 = $scope.pickers[1];
         var pickerIndex = $scope.pickers.indexOf(picker);
         var pMoment = moment(picker.datetime);
-
-        // console.log(picker.datetime + ' : ' + newDt.format(DATETIME_DEFAULT_FORMAT));
 
         if(pMoment.format('YYYY') !== newDt.format('YYYY') ||
           pMoment.format('MM') !== newDt.format('MM')) {
@@ -490,7 +511,40 @@
       };
 
       $scope.isDatetimeInvalid = function() {
-        return $scope.pickers[0].isInvalid || ($scope.pickers[1] && $scope.pickers[1].isInvalid);
+        if($scope.restricts && $scope.restricts instanceof Array && $scope.restricts.length > 0) {
+          var length = $scope.restricts.length;
+          var e;
+          var isActive = false;
+          var message = '';
+          for(var i = 0; i < length; ++i) {
+            e = $scope.restricts[i];
+            if(e.name === 'max-interval' && $scope.isRange) {
+              var interval = e.intervalSeconds; // should be seconds
+              if(interval > 0) {
+                var currentDiff = moment($scope.pickers[1].datetime, $scope.format).diffSeconds($scope.pickers[0].datetime);
+                if(currentDiff > interval) {
+                  isActive = true;
+                  message = e.message;
+                  break;
+                }
+              }
+            } else if(e.name === 'min-interval' && $scope.isRange) {
+              var interval = e.intervalSeconds; // should be seconds
+              if(interval > 0) {
+                var currentDiff = moment($scope.pickers[1].datetime, $scope.format).diffSeconds($scope.pickers[0].datetime);
+                if(currentDiff < interval) {
+                  isActive = true;
+                  message = e.message;
+                  break;
+                }
+              }
+            }
+          }
+
+          $scope.restrictsActive = isActive;
+          $scope.restrictTips = message;
+        }
+        return $scope.restrictsActive || $scope.pickers[0].isInvalid || ($scope.pickers[1] && $scope.pickers[1].isInvalid);
       };
 
       $scope = angular.extend($scope, {
@@ -576,8 +630,6 @@
    */
   function calcDays(scope, datetime) {
     var datetimeMoment = moment(datetime);
-
-    // console.log(datetimeMoment);
 
     var days = new Array(42);
     var dayLength = datetimeMoment.daysInMonth();
