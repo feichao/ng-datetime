@@ -5,7 +5,7 @@
     .directive('ngDatetimePicker', NgDatetimePicker);
 
   var NG_DATETIME_TEMPLATE = [
-    '<ng-datetime dt-type="{{ vm.dtType }}" choice="vm.choice" start-choice="vm.startChoice" end-choice="vm.endChoice"',
+    '<ng-datetime dt-type="{{ vm.dtType }}" choice="choice" start-choice="startChoice" end-choice="endChoice"',
     ' max="{{ vm.max }}" min="{{ vm.min }}" max-length="{{ vm.maxLength }}" min-length="{{ vm.minLength }}" restricts="vm.restricts"',
     ' dt-confirm="vm.save(startChoice, endChoice, choice)" dt-cancel="vm.cancel()" ',
     ' dt-q-select="vm.dtQSelect" dt-language="vm.dtLanguage"',
@@ -40,23 +40,23 @@
       template: function($element, $attr) {
         var template;
         var random = (Math.random() + '').substr(2);
-        var display = '{{ vm.startChoice }}&nbsp;~&nbsp;{{ vm.endChoice }}';
+        var display = '{{ startChoice }}&nbsp;~&nbsp;{{ endChoice }}';
         if($attr.dtText === undefined) { // button mode
           if($attr.choice) {
-            template = '<md-button class="md-raised md-primary no-margin" ng-disabled="vm.disabled" ng-click="vm.open($event)">{{ vm.choice }}</md-button>';
+            template = '<md-button class="md-raised md-primary no-margin" ng-disabled="vm.disabled" ng-click="vm.open($event)">{{ choice }}</md-button>';
           } else {
             template = '<md-button class="md-raised md-primary no-margin" ng-disabled="vm.disabled" ng-click="vm.open($event)">' + display + '</md-button>';
           }
         } else { // text mode
           if($attr.choice) {
-            template = '<span class="text-mode-input" ng-class="vm.disabled?\'disabled\':\'\'" ng-click="vm.open($event)">{{ vm.choice }}</span>';
+            template = '<span class="text-mode-input" ng-class="vm.disabled?\'disabled\':\'\'" ng-click="vm.open($event)">{{ choice }}</span>';
           } else {
             template = '<span class="text-mode-input" ng-class="vm.disabled?\'disabled\':\'\'" ng-click="vm.open($event)">' + display + '</span>';
           }
         }
 
-        if ($attr.dtDialog === undefined) {
-          template += '<div dt-id="' + random + '" ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper">' + 
+        if($attr.dtDialog === undefined) {
+          template += '<div dt-id="' + random + '" ng-if="vm.isPanelLoading" ng-class="vm.isPanelOpen ? \'open\' : \'\'" class="ng-datetime-wrapper">' +
             NG_DATETIME_TEMPLATE + '</div>';
         }
 
@@ -87,9 +87,6 @@
       vm.minLength = $scope.minLength;
       vm.restricts = $scope.restricts;
       vm.disabled = !!$scope.ngDisabled;
-      vm.startChoice = $scope.startChoice;
-      vm.endChoice = $scope.endChoice;
-      vm.choice = $scope.choice;
       vm.dtConfirm = typeof $scope.dtConfirm === 'function' ? $scope.dtConfirm : angular.noop;
       vm.dtCancel = typeof $scope.dtCancel === 'function' ? $scope.dtCancel : angular.noop;
 
@@ -213,10 +210,10 @@
               return vm;
             }
           }
-        }).then(function (data) {
-          $scope.startChoice = vm.startChoice = data.startChoice;
-          $scope.endChoice = vm.endChoice = data.endChoice;
-          $scope.choice = vm.choice = data.choice;
+        }).then(function(data) {
+          $scope.startChoice = data.startChoice;
+          $scope.endChoice = data.endChoice;
+          $scope.choice = data.choice;
           vm.dtConfirm(data);
         });
       };
@@ -233,10 +230,10 @@
         }
       };
 
-      vm.save = function (startChoice, endChoice, choice) {
-        $scope.startChoice = vm.startChoice = startChoice;
-        $scope.endChoice = vm.endChoice = endChoice;
-        $scope.choice = vm.choice = choice;
+      vm.save = function(startChoice, endChoice, choice) {
+        $scope.startChoice = startChoice;
+        $scope.endChoice = endChoice;
+        $scope.choice = choice;
         vm.dtConfirm({ startChoice: startChoice, endChoice: endChoice, choice: choice });
         vm.closeCalendarPanel();
       };
