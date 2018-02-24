@@ -524,14 +524,18 @@
 
       $scope._setDayStartTime = function(picker, reduceday) {
         if(picker) {
-          $scope.setPickerDatetimeInfo(picker, moment().subtractDays(reduceday).startOf('day'));
+          if(reduceday === 0) {
+            $scope.setPickerDatetimeInfo(picker, moment().startOf('day'));
+          } else {
+            $scope.setPickerDatetimeInfo(picker, moment().subtractDays(reduceday).startOf('day'));
+          }
         }
       };
 
       $scope._setDayEndTime = function(picker, reduceday) {
         if(picker) {
           if(reduceday === 0) {
-            $scope.setPickerDatetimeInfo(picker, moment());
+            $scope.setPickerDatetimeInfo(picker, moment()); // set current time to end time
           } else {
             $scope.setPickerDatetimeInfo(picker, moment().subtractDays(reduceday).endOf('day'));
           }
