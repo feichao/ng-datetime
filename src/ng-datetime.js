@@ -469,26 +469,29 @@
         }
       };
 
-      $scope.qSelect = function(seconds, picker) {
-        if(angular.isArray(seconds) && $scope.isRange) {
-          $scope.qSelect(seconds[0], $scope.pickers[0]);
-          $scope.qSelect(seconds[1], $scope.pickers[1]);
+      $scope.qSelect = function(value, picker) {
+        if(angular.isArray(value) && $scope.isRange) {
+          $scope.qSelect(value[0], $scope.pickers[0]);
+          $scope.qSelect(value[1], $scope.pickers[1]);
           return;
         }
 
         var dtType = $scope.dtType;
         //var oneDaySeconds = 24 * 60 * 60;
-        // if ((dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATE_RANGE) && seconds < oneDaySeconds) {
+        // if ((dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATE_RANGE) && value < oneDaySeconds) {
         //   return;
         // }
 
-        // if ((dtType === DATE_TYPE.TIME || dtType === DATE_TYPE.TIME_RANGE) && seconds > oneDaySeconds) {
+        // if ((dtType === DATE_TYPE.TIME || dtType === DATE_TYPE.TIME_RANGE) && value > oneDaySeconds) {
         //   return;
         // }
 
         if(picker) {
           $scope._setToday(picker);
-          $scope.minusSeconds(picker, seconds);
+          if(angular.isNumber(value)) {
+            $scope.minusSeconds(picker, value);
+          }
+
           return;
         }
 
@@ -496,17 +499,42 @@
         if(dtType === DATE_TYPE.DATE || dtType === DATE_TYPE.DATETIME || dtType === DATE_TYPE.TIME) {
           pickerTmp = $scope.pickers[0];
           $scope._setToday(pickerTmp);
-          $scope.minusSeconds(pickerTmp, seconds);
+          if(angular.isNumber(value)) {
+            $scope.minusSeconds(pickerTmp, value);
+          }
         } else { // range
           $scope._setToday($scope.pickers[0]);
           $scope._setToday($scope.pickers[1]);
-          $scope.minusSeconds($scope.pickers[0], seconds);
+          if(angular.isNumber(value)) {
+            $scope.minusSeconds($scope.pickers[0], value);
+          } else if(angular.isObject(value)) {
+            if(value.type === 'day' && dtType === DATE_TYPE.DATETIME_RANGE) {
+              $scope._setDayStartTime($scope.pickers[0], value.reduce);
+              $scope._setDayEndTime($scope.pickers[1], value.reduce);
+            }
+          }
         }
       };
 
       $scope._setToday = function(picker) {
         if(picker) {
           $scope.setPickerDatetimeInfo(picker, moment());
+        }
+      };
+
+      $scope._setDayStartTime = function(picker, reduceday) {
+        if(picker) {
+          $scope.setPickerDatetimeInfo(picker, moment().subtractDays(reduceday).startOf('day'));
+        }
+      };
+
+      $scope._setDayEndTime = function(picker, reduceday) {
+        if(picker) {
+          if(reduceday === 0) {
+            $scope.setPickerDatetimeInfo(picker, moment());
+          } else {
+            $scope.setPickerDatetimeInfo(picker, moment().subtractDays(reduceday).endOf('day'));
+          }
         }
       };
 
@@ -559,6 +587,12 @@
         },
         addMonth: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addMonths(1));
+        },
+        minusDay: function(picker) {
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractDays(1));
+        },
+        addDay: function(picker) {
+          $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).addDays(1));
         },
         minusHour: function(picker) {
           $scope.setPickerDatetimeInfo(picker, moment(picker.datetime).subtractHours(1));
